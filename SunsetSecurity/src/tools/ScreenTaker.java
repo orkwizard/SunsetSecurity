@@ -1,5 +1,10 @@
 package tools;
 
+import java.awt.AWTException;
+
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
@@ -8,6 +13,8 @@ public class ScreenTaker {
 	
 	private String IP;
 	private String HostName;
+	private Robot robot;
+
 	
 	
 	public ScreenTaker(){
@@ -19,8 +26,13 @@ public class ScreenTaker {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 	
 	public boolean captureLocal(){
@@ -29,8 +41,6 @@ public class ScreenTaker {
 	}
 
 	public BufferedImage capture(){
-		
-		
-		return null;
+		return robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
 	}
 }

@@ -42,8 +42,6 @@ public class KeyLogger implements NativeKeyListener {
             GlobalScreen.registerNativeHook();
             logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
             logger.setLevel(Level.WARNING);
-            
-            
         }
         catch (NativeHookException ex) {
             System.err.println("There was a problem registering the native hook.");
