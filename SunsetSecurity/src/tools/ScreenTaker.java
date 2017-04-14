@@ -19,8 +19,6 @@ public class ScreenTaker {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 	public boolean captureLocal(){
@@ -33,4 +31,31 @@ public class ScreenTaker {
 		
 		return null;
 	}
+
+	public String getIP() {
+		return IP;
+	}
+
+	public void setIP(String iP) {
+		IP = iP;
+	}
+
+	public String getHostName() {
+		return HostName;
+	}
+
+	public void setHostName(String hostName) {
+		HostName = hostName;
+	}
+	
+	
+	 public static void main(String[] args){
+		 ScreenTaker screen = new ScreenTaker();
+		 System.out.println(screen.HostName);
+		 System.out.print(screen.getIP());
+		 System.out.println("Test");
+		 
+		 
+	 }
+	
 }
