@@ -21,8 +21,11 @@ public class ScreenTaker {
 		try {
 			IP = Inet4Address.getLocalHost().getHostAddress();
 			HostName = Inet4Address.getLocalHost().getHostName();
-			
+			robot = new Robot();
 		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (AWTException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

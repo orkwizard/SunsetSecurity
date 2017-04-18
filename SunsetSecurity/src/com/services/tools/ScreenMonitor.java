@@ -74,6 +74,7 @@ public class ScreenMonitor {
 	        }
 	      }
 	    }
+	    
 	    term.write(sb.toString());
 	    vertx.setTimer(100, v -> broadcast());
 	  }

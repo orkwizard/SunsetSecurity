@@ -33,6 +33,8 @@ public class TCPServer extends AbstractVerticle {
 					@Override
 					public void handle(Buffer buffer) {
 						// TODO Auto-generated method stub
+						
+						
 						System.out.println("command: "+buffer.toString());
 						
 						ScreenTaker screen = new ScreenTaker();
