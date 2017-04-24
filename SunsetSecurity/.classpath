@@ -16,7 +16,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/edgarosorio/Downloads/vertx/lib"/>
-	<classpathentry kind="lib" path="/Users/edgarosorio/Desktop/Vertx/vertx-examples/shell-examples/target/shell-examples-3.4.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
