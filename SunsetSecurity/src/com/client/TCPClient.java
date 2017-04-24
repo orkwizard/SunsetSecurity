@@ -5,12 +5,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -19,7 +19,7 @@ import io.vertx.core.net.NetSocket;
 
 public class TCPClient  extends AbstractVerticle {
 	
-	public void start() {
+	public void start(Future<Void> future) {
 		
 		Vertx vertx = Vertx.vertx();
         NetClient tcpClient = vertx.createNetClient();
@@ -75,8 +75,16 @@ public class TCPClient  extends AbstractVerticle {
 	        throw new RuntimeException(e);
 	    }
 	}
+	
+	
 	public static void main(String args[]){
 		TCPClient client = new TCPClient();
-		client.start();
+		try {
+			client.start();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

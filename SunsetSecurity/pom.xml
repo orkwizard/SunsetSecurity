@@ -22,15 +22,16 @@
   		<artifactId>jnativehook</artifactId>
   		<version>2.1.0</version>
   	</dependency>
+  	
   	<dependency>
-<<<<<<< HEAD
   		<groupId>io.vertx</groupId>
   		<artifactId>vertx-core</artifactId>
-=======
-  		<groupId>joda-time</groupId>
-  		<artifactId>joda-time</artifactId>
-  		<version>2.9.9</version>
   	</dependency>
+  		<dependency>
+	  		<groupId>joda-time</groupId>
+	  		<artifactId>joda-time</artifactId>
+	  		<version>2.9.9</version>
+  		</dependency>
   	<dependency>
   		<groupId>io.netty</groupId>
   		<artifactId>netty-all</artifactId>
@@ -49,8 +50,22 @@
   	<dependency>
   		<groupId>io.vertx</groupId>
   		<artifactId>vertx-dropwizard-metrics</artifactId>
->>>>>>> branch 'master' of https://github.com/orkwizard/SunsetSecurity.git
   		<version>3.4.1</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.quartz-scheduler</groupId>
+  		<artifactId>quartz</artifactId>
+  		<version>2.2.1</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>javax.mail</groupId>
+  		<artifactId>mail</artifactId>
+  		<version>1.4</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.apache.commons</groupId>
+  		<artifactId>commons-email</artifactId>
+  		<version>1.4</version>
   	</dependency>
   </dependencies>
 </project>
