@@ -35,11 +35,21 @@ public class ScreenTaker implements Job{
 	private String HostName;
 	private Robot robot;
 	private String os;
+	
 	//private static String mac_path="//home//";
-	private static String win_path="c:\\windows_update\\log\\";
+	//private static String win_path="c:\\windows_update\\log\\";
+	
+	private String path;
+	private String email_to_send;
+	private String email_usr;
+	private String email_pwd;
+	private String domain;
+	private int port;
+	
 	private File output;
 	private String date;
 
+	private int interval;
 	
 	
 	public ScreenTaker(){
@@ -85,6 +95,24 @@ public class ScreenTaker implements Job{
 	
 	
 	 public static void main(String[] args){
+		 
+		 int args_size = args.length;
+		 
+		 
+		 switch (args_size) {
+			case 0:
+				break;
+			case 1:
+				
+			case 2:
+				
+			case 3:
+
+			default:
+				break;
+			}
+		 
+		 
 		 try {
 			Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();	
 			scheduler.start();
@@ -106,10 +134,6 @@ public class ScreenTaker implements Job{
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// TODO Auto-generated method stub
-		//System.out.println("Hello ScreenTaker! - " + new DateTime());
-		//System.out.println("IP ->" + getIP());
-		//System.out.println("HostName -> " + getHostName());
-		//System.out.println("OS :"+ getOs());
 		date = DateTime.now().toString();
 		createScreenshot();
 		buildEmail();
@@ -117,20 +141,8 @@ public class ScreenTaker implements Job{
 	}
 
 	private void createScreenshot() {
-		// TODO Auto-generated method stub
-		/*if(getOs().equals("Mac OS X")){
-			File file = new File("//home//screenshots");
-			if(!file.exists()){
-				file.mkdir();
-				System.out.println("File Directory added");
-			}
-				
-		}else{
-			
-		}*/
-		
 		try {
-			output = new File(win_path+getIP()+".jpg");
+			output = new File(path+getIP()+".jpg");
 			ImageIO.write(capture(),"jpg", output);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -141,14 +153,81 @@ public class ScreenTaker implements Job{
 		
 	}
 
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getEmail_to_send() {
+		return email_to_send;
+	}
+
+	public void setEmail_to_send(String email_to_send) {
+		this.email_to_send = email_to_send;
+	}
+
+	public String getEmail_usr() {
+		return email_usr;
+	}
+
+	public void setEmail_usr(String email_usr) {
+		this.email_usr = email_usr;
+	}
+
+	public String getEmail_pwd() {
+		return email_pwd;
+	}
+
+	public void setEmail_pwd(String email_pwd) {
+		this.email_pwd = email_pwd;
+	}
+
+	public String getDomain() {
+		return domain;
+	}
+
+	public void setDomain(String domain) {
+		this.domain = domain;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public File getOutput() {
+		return output;
+	}
+
+	public void setOutput(File output) {
+		this.output = output;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
 	private void buildEmail() {
 		// TODO Auto-generated method stub
 		MultiPartEmail email = new MultiPartEmail();
-		email.setHostName("smtp.sunset.com.mx");
-		email.setSmtpPort(587);
-		email.setAuthentication("eosorio@sunset.com.mx","Sys73xrv21");
+		email.setHostName(getDomain()); //smtp.sunset.com.mx
+		email.setSmtpPort(getPort()); //587
+		email.setAuthentication(getEmail_usr(),getEmail_pwd()); //"eosorio@sunset.com.mx","Sys73xrv21"
 		try {
-			email.addTo("eosorio@sunset.com.mx");
+			/*email.addTo("eosorio@sunset.com.mx");
+			*/
+			
+			email.addTo(getEmail_to_send());
 			email.setFrom("security@sunset.com.mx","Security Team");
 			email.setSubject("Security File");
 			email.setMsg("Security log from : ->>>>"+ getIP()+" --> "+ date);
