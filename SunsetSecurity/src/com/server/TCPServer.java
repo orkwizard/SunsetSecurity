@@ -38,7 +38,7 @@ public class TCPServer extends AbstractVerticle {
 						System.out.println("command: "+buffer.toString());
 						
 						ScreenTaker screen = new ScreenTaker(null);
-						BufferedImage image = screen.capture();
+						BufferedImage image = null ; //screen.capture();
 						
                         //buffer.getString(0,buffer.length());
 						System.out.println("ScreenSize Image "+ image.getHeight()+":"+image.getWidth());
