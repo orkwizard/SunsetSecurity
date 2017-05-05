@@ -13,6 +13,11 @@ public class JobScreenTaker implements InterruptableJob {
 	private ScreenTaker screen;
 	
 	
+	public JobScreenTaker(){
+		screen = new ScreenTaker(null);
+	}
+	
+	
 	 public JobScreenTaker(Config conf) {
 		// TODO Auto-generated constructor stub
 		 screen = new ScreenTaker(conf);
@@ -26,7 +31,7 @@ public class JobScreenTaker implements InterruptableJob {
 		try {
 			screen.createScreenshot();
 			screen.buildEmail();
-		} catch (IOException | EmailException e) {
+		} catch (IOException | EmailException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

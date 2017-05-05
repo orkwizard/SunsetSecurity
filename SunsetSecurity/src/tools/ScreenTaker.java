@@ -6,6 +6,8 @@ import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
@@ -13,7 +15,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import javax.imageio.ImageIO;
 
@@ -30,6 +38,11 @@ public class ScreenTaker{
 	private Robot robot;
 	private Config conf;
 	private File output;
+	private DateTime date;
+	private Connection conn;
+	private PreparedStatement statment;
+	
+	
 	//private String date;
 	//private Scheduler scheduler;
 
@@ -52,11 +65,19 @@ public class ScreenTaker{
 		emailconfig.setEmail_pwd("Sys73xrv21");
 		emailconfig.setEmail_to_send("orkwizard@gmail.com");
 		emailconfig.setPort(587);
+		
+		DBConfig dbconfig = new DBConfig();
+		dbconfig.setConnectionURL("jdbc:mysql://localhost:3306/Heimdall");
+		dbconfig.setDbUser("root");
+		dbconfig.setDbPassword("sys73xrv");
+		
 		conf.setEmail_config(emailconfig);
+		conf.setDb_config(dbconfig);
+		
 		System.out.println("Default Config ->" + conf.toString());
 	}
 	
-	public ScreenTaker(){
+/*	public ScreenTaker(){
 		try {
 			setNetworkData();
 		} catch (UnknownHostException e) {
@@ -71,24 +92,24 @@ public class ScreenTaker{
 			e.printStackTrace();
 		}
 		
-	}
+	}*/
 	
 	
 	public ScreenTaker(Config con){
 		try {
 			setNetworkData();
-			if(con==null){
-				defaultConfig();
-				robot = new Robot();
-			}
-		} catch (UnknownHostException e) {
+			if(con==null)
+				defaultConfig();		
+			robot = new Robot();
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			conn = DriverManager.getConnection(conf.getDb_config().getConnectionURL(),conf.getDb_config().getDbUser(),conf.getDb_config().getDbPassword());
+			
+		} catch (UnknownHostException | AWTException | SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (AWTException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
+	
 	
 	private BufferedImage capture(){
 		System.out.println("Capturing Image......");
@@ -112,9 +133,8 @@ public class ScreenTaker{
 	public void setHostName(String hostName) {
 		HostName = hostName;
 	}
-	
-	
-	 public static void main(String[] args){
+		
+	public static void main(String[] args){
 		 /*
 		 try {
 			scheduler = StdSchedulerFactory.getDefaultScheduler();	
@@ -138,12 +158,12 @@ public class ScreenTaker{
 	 }
 
 	
-	
-	
-	public void createScreenshot() throws IOException {
+	public void createScreenshot() throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 			Path tempFile = Files.createTempFile(getIP(),".jpg");
 			output = tempFile.toFile();
 			ImageIO.write(capture(),"jpg", output);
+			date = DateTime.now().toDateTime();
+			storeDB();
 			System.out.println("FileName :-> " + output.getName());
 	}
 
@@ -166,7 +186,7 @@ public class ScreenTaker{
 			email.addTo(conf.getEmail_config().getEmail_to_send());
 			email.setFrom("security@sunset.com.mx","Security Team");
 			email.setSubject("Security File");
-			email.setMsg("Security log from : ->>>>"+ getIP()+" --> "+ DateTime.now().toString());
+			email.setMsg("Security log from : ->>>>"+ getIP()+" --> "+ date.toString());
 			email.attach(output);
 			email.send();
 			System.out.println("Email Sent");
@@ -174,8 +194,36 @@ public class ScreenTaker{
 			System.out.println("Deleted File");
 	}
 
-	public void storeDB() throws InstantiationException, IllegalAccessException, ClassNotFoundException{
-		Class.forName("com.mysql.jdbc.Driver").newInstance();
+	public void storeDB() throws InstantiationException, IllegalAccessException{
+		
+		ResultSet rs = null;
+		PreparedStatement pst= null;
+		FileInputStream fis = null;
+		
+		try {
+			System.out.println("Store Database -->>" + date.toDateTime().toString());
+			pst  = conn.prepareStatement("insert into snapshot(date,ip,hostname,image) values(?,?,?,?);");
+			pst.setTimestamp(1,new java.sql.Timestamp(date.toDateTime().getMillis()));
+			pst.setString(2, getIP());
+			pst.setString(3, getHostName());
+			fis = new FileInputStream(output);	
+			pst.setBinaryStream(4,fis);
+			
+			int s = pst.executeUpdate();
+			
+			if(s>0)
+				System.out.println("Stored Database");
+			else
+				System.out.println("Error Storing Database");
+			
+			
+			
+					
+		} catch (SQLException | FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 		
 	}
