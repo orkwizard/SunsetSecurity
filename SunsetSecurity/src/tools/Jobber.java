@@ -32,7 +32,19 @@ public class Jobber  {
 		scheduler.scheduleJob(jobDetail,trigger);
 	}
 	
+	public boolean isRunning(){
+		try {
+			return scheduler.isStarted();
+			
+		} catch (SchedulerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	public void stop() throws SchedulerException{
+		System.out.println("Stoping Jobber");
 		scheduler.shutdown();
 	}
 	
