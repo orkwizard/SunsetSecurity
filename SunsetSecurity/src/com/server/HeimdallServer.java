@@ -1,6 +1,6 @@
 package com.server;
 
-import java.util.Iterator;
+import java.net.Inet4Address;
 import java.util.List;
 
 import io.vertx.core.AbstractVerticle;
@@ -24,6 +24,14 @@ public class HeimdallServer extends AbstractVerticle {
 	
 	private Jobber jobs;
 	
+	private String heimdallWelcome=""+
+"#  #     # ####### ### #     # ######     #    #       #       \n"+
+"#  #     # #        #  ##   ## #     #   # #   #       #       \n"+
+"#  #     # #        #  # # # # #     #  #   #  #       #       \n"+
+"#  ####### #####    #  #  #  # #     # #     # #       #       \n"+
+"#  #     # #        #  #     # #     # ####### #       #       \n"+
+"#  #     # #        #  #     # #     # #     # #       #       \n"+
+"#  #     # ####### ### #     # ######  #     # ####### ####### \n\n\n";
 	
 	private void scatt_register(){
 		scatter = CommandBuilder.command("scatter").processHandler(process ->{
@@ -35,7 +43,6 @@ public class HeimdallServer extends AbstractVerticle {
 			 * stop
 			 * 
 			 */
-			
 			List<String> args = process.args();
 			
 			if(args.isEmpty()){
@@ -44,30 +51,44 @@ public class HeimdallServer extends AbstractVerticle {
 			}else{
 				int size = args.size();
 				String command = args.get(0);
+				System.out.println(command);
+				
 				switch(command){
-				case "stop":
-				case "status":
-				case "start":
+				case "stop":{
+					try {
+						jobs.stop();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					process.end();
+					
+				}break;
+				case "status":{
+					if(jobs!=null)
+						process.write(jobs.isRunning()+"");
+					else
+						process.write("Scatter not running \n\n");
+					process.end();
+					
+				}break;
+				case "start":{
+					try {
+						jobs = new Jobber(120);
+						jobs.run();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					process.end();
+				}break;
 				}
 				
 			}
-				
-			
-			
-			
-			//process.write("Running Scatter");
-			try {
-				jobs = new Jobber(120);
-				jobs.run();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			process.end();	
 			
 			}).build(vertx);
 	};
-	
+	/*
 	private void scatt_stop(){
 		//scatter-stop
 		scatterstop = CommandBuilder.command("scatter-stop").processHandler(process ->{
@@ -82,19 +103,21 @@ public class HeimdallServer extends AbstractVerticle {
 			}
 			process.end();
 		}).build(vertx);
-	}
+	}*/
 	
 	@Override
 	public void start()throws Exception{
 		vertx = Vertx.vertx();
 		scatt_register();
-		scatt_stop();
+		//scatt_stop();
+		
+		String ip = Inet4Address.getLocalHost().getHostAddress();
 		
 		ShellService service = ShellService.create(vertx, new ShellServiceOptions().setTelnetOptions(
-		        new TelnetTermOptions().setHost("localhost").setPort(3000)
-		    ));
+		        new TelnetTermOptions().setHost(ip).setPort(3000)
+		    ).setWelcomeMessage(heimdallWelcome));
 		CommandRegistry.getShared(vertx).registerCommand(scatter);	
-		CommandRegistry.getShared(vertx).registerCommand(scatterstop);
+		//CommandRegistry.getShared(vertx).registerCommand(scatterstop);
 		
 		service.start(ar -> {
 		      if (!ar.succeeded()) {
