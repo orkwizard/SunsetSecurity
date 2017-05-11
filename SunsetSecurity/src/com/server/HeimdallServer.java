@@ -46,7 +46,7 @@ public class HeimdallServer extends AbstractVerticle {
 			List<String> args = process.args();
 			
 			if(args.isEmpty()){
-				process.write("Usage: start <interval> | stop | status");
+				process.write("Usage: start <interval> | stop | status | register | update <interval> \n");
 				process.end();
 			}else{
 				int size = args.size();
@@ -73,9 +73,27 @@ public class HeimdallServer extends AbstractVerticle {
 					
 				}break;
 				case "start":{
+					
+					
+					boolean valid = startCommand(args);
+					
+					
+					if(!(size>1)){
+						process.write("Sintaxis: scatter start <interval> \n");
+						break;
+					}
+					int interval;
+					try{
+						interval = Integer.parseInt(args.get(1));
+					}catch(NumberFormatException ex){
+						process.write("An integer was expected");
+						process.end();
+						break;
+					}
 					try {
-						jobs = new Jobber(120);
+						jobs = new Jobber(interval);
 						jobs.run();
+						process.write("Running Scatter at : " + interval +"seconds");
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -105,6 +123,21 @@ public class HeimdallServer extends AbstractVerticle {
 		}).build(vertx);
 	}*/
 	
+	private boolean startCommand(List<String> args) {
+		// TODO Auto-generated method stub
+		// Valida que se cumplan los valores
+		int size = args.size();
+		int interval;
+		if(size > 1)
+			try{
+				interval = Integer.parseInt(args.get(1));
+			}catch(NumberFormatException e){
+				e.printStackTrace();
+			}
+			
+		
+		return false;
+	}
 	@Override
 	public void start()throws Exception{
 		vertx = Vertx.vertx();
