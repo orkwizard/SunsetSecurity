@@ -5,11 +5,17 @@ import java.util.List;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.JksOptions;
+import io.vertx.ext.auth.shiro.ShiroAuthOptions;
+import io.vertx.ext.auth.shiro.ShiroAuthRealmType;
 import io.vertx.ext.shell.ShellService;
 import io.vertx.ext.shell.ShellServiceOptions;
 import io.vertx.ext.shell.command.Command;
 import io.vertx.ext.shell.command.CommandBuilder;
 import io.vertx.ext.shell.command.CommandRegistry;
+import io.vertx.ext.shell.term.HttpTermOptions;
+import io.vertx.ext.shell.term.SSHTermOptions;
 import io.vertx.ext.shell.term.TelnetTermOptions;
 import io.vertx.ext.shell.term.TermServer;
 import tools.Jobber;
@@ -106,22 +112,7 @@ public class HeimdallServer extends AbstractVerticle {
 			
 			}).build(vertx);
 	};
-	/*
-	private void scatt_stop(){
-		//scatter-stop
-		scatterstop = CommandBuilder.command("scatter-stop").processHandler(process ->{
-			process.write("Stoping Scatter");
-			if(jobs!=null){
-				try {
-					jobs.stop();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			process.end();
-		}).build(vertx);
-	}*/
+	
 	
 	private boolean startCommand(List<String> args) {
 		// TODO Auto-generated method stub
@@ -142,16 +133,39 @@ public class HeimdallServer extends AbstractVerticle {
 	public void start()throws Exception{
 		vertx = Vertx.vertx();
 		scatt_register();
-		//scatt_stop();
-		
 		String ip = Inet4Address.getLocalHost().getHostAddress();
 		
+		
+		
+		ShellService service = ShellService.create(vertx,
+				new ShellServiceOptions().setSSHOptions(
+						new SSHTermOptions().
+						setHost(ip).
+						setPort(5500).
+						setKeyPairOptions(new JksOptions().
+								setPath("server-keystore.jks").
+								setPassword("wibble")
+								).
+						setAuthOptions(new ShiroAuthOptions().
+								setType(ShiroAuthRealmType.PROPERTIES).
+								setConfig(new JsonObject().
+										put("properties_path","")
+										)
+								)
+						);
+										
+		
+		
+		
+		
+		/*WORKS
 		ShellService service = ShellService.create(vertx, new ShellServiceOptions().setTelnetOptions(
 		        new TelnetTermOptions().setHost(ip).setPort(3000)
 		    ).setWelcomeMessage(heimdallWelcome));
-		CommandRegistry.getShared(vertx).registerCommand(scatter);	
-		//CommandRegistry.getShared(vertx).registerCommand(scatterstop);
+		*/
 		
+		
+		CommandRegistry.getShared(vertx).registerCommand(scatter);	
 		service.start(ar -> {
 		      if (!ar.succeeded()) {
 		          ar.cause().printStackTrace();

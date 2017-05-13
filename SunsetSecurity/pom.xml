@@ -29,11 +29,6 @@
 	  		<version>2.9.9</version>
   		</dependency>
   	<dependency>
-  		<groupId>io.netty</groupId>
-  		<artifactId>netty-all</artifactId>
-  		<version>4.1.9.Final</version>
-  	</dependency>
-  	<dependency>
   		<groupId>io.vertx</groupId>
   		<artifactId>vertx-core</artifactId>
   		<version>3.4.1</version>
@@ -64,14 +59,14 @@
   		<version>1.4</version>
   	</dependency>
   	<dependency>
-  		<groupId>io.vertx</groupId>
-  		<artifactId>vertx-web</artifactId>
-  		<version>3.4.1</version>
-  	</dependency>
-  	<dependency>
   		<groupId>mysql</groupId>
   		<artifactId>mysql-connector-java</artifactId>
   		<version>5.1.42</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>io.vertx</groupId>
+  		<artifactId>vertx-auth-shiro</artifactId>
+  		<version>3.4.1</version>
   	</dependency>
   </dependencies>
 </project>
