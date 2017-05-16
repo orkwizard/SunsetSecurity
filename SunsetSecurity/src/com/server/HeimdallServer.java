@@ -29,7 +29,6 @@ public class HeimdallServer extends AbstractVerticle {
 	
 	
 	private Command scatter;
-	private Command scatterstop;
 	
 	private Jobber jobs;
 	
@@ -204,8 +203,8 @@ public class HeimdallServer extends AbstractVerticle {
 			            setHost(ip).
 			            setPort(5000).
 			            setKeyPairOptions(new JksOptions().
-			                    setPath("server-keystore.jks").
-			                    setPassword("wibble")
+			                    setPath("keystore.jks").
+			                    setPassword("sys73xrv")
 			            ).
 			            setAuthOptions(new JDBCAuthOptions().setConfig(new JsonObject()
 			                    .put("url", "jdbc:mysql://localhost:3306/Heimdall")
