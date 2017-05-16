@@ -4,14 +4,10 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
-import io.vertx.ext.auth.AuthOptions;
 import io.vertx.ext.auth.jdbc.JDBCAuth;
 import io.vertx.ext.auth.jdbc.JDBCAuthOptions;
 import io.vertx.ext.jdbc.JDBCClient;
@@ -20,9 +16,7 @@ import io.vertx.ext.shell.ShellServiceOptions;
 import io.vertx.ext.shell.command.Command;
 import io.vertx.ext.shell.command.CommandBuilder;
 import io.vertx.ext.shell.command.CommandRegistry;
-import io.vertx.ext.shell.term.HttpTermOptions;
 import io.vertx.ext.shell.term.SSHTermOptions;
-import io.vertx.ext.shell.term.TelnetTermOptions;
 import io.vertx.ext.shell.term.TermServer;
 import tools.Jobber;
 
@@ -80,7 +74,29 @@ public class HeimdallServer extends AbstractVerticle {
 		
 		
 		
+		/*
+		 * 
+		String salt = auth.generateSalt();
+		String hash = auth.computeHash("sys73xrv",salt);
 		
+		
+		 jdbc.getConnection(res -> {
+			  if (res.succeeded()) {
+				    SQLConnection conn = res.result();
+				    conn.updateWithParams("INSERT INTO user VALUES (?, ?, ?)", new JsonArray().add("eosorio").add(hash).add(salt), resa -> {
+				    	  if (resa.succeeded()) {
+				    	    System.out.println("Added User");
+				    	  }
+				 });
+			  }
+		});
+		
+		*/
+		
+		
+		
+		
+			
 	}
 	
 	
@@ -182,7 +198,23 @@ public class HeimdallServer extends AbstractVerticle {
 		
 		scatt_register();
 		
+		ShellService service = ShellService.create(vertx,
+			    new ShellServiceOptions().setSSHOptions(
+			        new SSHTermOptions().
+			            setHost(ip).
+			            setPort(5000).
+			            setKeyPairOptions(new JksOptions().
+			                    setPath("server-keystore.jks").
+			                    setPassword("wibble")
+			            ).
+			            setAuthOptions(new JDBCAuthOptions().setConfig(new JsonObject()
+			                    .put("url", "jdbc:mysql://localhost:3306/Heimdall")
+			                    .put("driver_class", "com.mysql.jdbc.Driver"))
+			            )
+			    )
+			);
 		
+		System.out.println("Server initialized");
 		
 		
 		
@@ -208,12 +240,13 @@ public class HeimdallServer extends AbstractVerticle {
 		
 		
 		
-		
+		/*
 		
 		ShellService service = ShellService.create(vertx, new ShellServiceOptions().setTelnetOptions(
 		        new TelnetTermOptions().setHost(ip).setPort(3000)
 		    ).setWelcomeMessage(heimdallWelcome));
 		
+		*/
 		
 		
 		CommandRegistry.getShared(vertx).registerCommand(scatter);	
