@@ -4,11 +4,12 @@ import java.net.Inet4Address;
 import java.util.List;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
-import io.vertx.ext.auth.shiro.ShiroAuthOptions;
-import io.vertx.ext.auth.shiro.ShiroAuthRealmType;
+import io.vertx.ext.auth.jdbc.JDBCAuthOptions;
+import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.shell.ShellService;
 import io.vertx.ext.shell.ShellServiceOptions;
 import io.vertx.ext.shell.command.Command;
@@ -25,6 +26,9 @@ public class HeimdallServer extends AbstractVerticle {
 	private Vertx vertx;
 	private TermServer server;
 	
+	private JDBCClient jdbc_client;
+	
+	
 	private Command scatter;
 	private Command scatterstop;
 	
@@ -38,6 +42,17 @@ public class HeimdallServer extends AbstractVerticle {
 "#  #     # #        #  #     # #     # ####### #       #       \n"+
 "#  #     # #        #  #     # #     # #     # #       #       \n"+
 "#  #     # ####### ### #     # ######  #     # ####### ####### \n\n\n";
+	
+	
+	
+	
+	public HeimdallServer(){
+		super();
+		//lookforAsgard();
+		
+	}
+	
+	
 	
 	private void scatt_register(){
 		scatter = CommandBuilder.command("scatter").processHandler(process ->{
@@ -136,6 +151,19 @@ public class HeimdallServer extends AbstractVerticle {
 		String ip = Inet4Address.getLocalHost().getHostAddress();
 		
 		
+		DeploymentOptions options = new DeploymentOptions()
+				.setConfig(new JsonObject()
+						.put("host",ip)
+						.put("port",5055)
+						.put("config", value)
+						.put("url","jdbc:mysql://localhost:3306/Heimdall")
+						.put("driver_class","com.mysql.jdbc.Driver")
+						);
+		
+		
+		
+		
+		
 		
 		ShellService service = ShellService.create(vertx,
 				new ShellServiceOptions().setSSHOptions(
@@ -146,13 +174,18 @@ public class HeimdallServer extends AbstractVerticle {
 								setPath("server-keystore.jks").
 								setPassword("wibble")
 								).
-						setAuthOptions(new ShiroAuthOptions().
+						setAuthOptions(new JDBCAuthOptions()
+								
+								
+								
+								
+								/*new ShiroAuthOptions().
 								setType(ShiroAuthRealmType.PROPERTIES).
 								setConfig(new JsonObject().
 										put("properties_path","")
 										)
 								)
-						);
+						);*/
 										
 		
 		
