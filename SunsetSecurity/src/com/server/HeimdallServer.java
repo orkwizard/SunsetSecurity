@@ -1,13 +1,18 @@
 package com.server;
 
 import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
+import io.vertx.ext.auth.AuthOptions;
+import io.vertx.ext.auth.jdbc.JDBCAuth;
 import io.vertx.ext.auth.jdbc.JDBCAuthOptions;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.shell.ShellService;
@@ -26,7 +31,7 @@ public class HeimdallServer extends AbstractVerticle {
 	private Vertx vertx;
 	private TermServer server;
 	
-	private JDBCClient jdbc_client;
+	private JDBCClient jdbc;
 	
 	
 	private Command scatter;
@@ -44,11 +49,37 @@ public class HeimdallServer extends AbstractVerticle {
 "#  #     # ####### ### #     # ######  #     # ####### ####### \n\n\n";
 	
 	
+	private String ip;
+	
+	private JDBCAuth auth;
 	
 	
 	public HeimdallServer(){
 		super();
+		try {
+			ip = Inet4Address.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//lookforAsgard();
+		//Creating vertx
+		vertx = Vertx.vertx();
+		
+		//Creating DataBase Connection 
+		//Asgard will return this data!!
+		
+		jdbc = JDBCClient.createShared(vertx,new JsonObject()
+				.put("url","jdbc:mysql://localhost:3306/Heimdall")
+				.put("driver_class","com.mysql.jdbc.Driver")
+				.put("user", "root")
+				.put("password", "sys73xrv"));
+		
+		
+		auth = JDBCAuth.create(vertx, jdbc);
+		
+		
+		
 		
 	}
 	
@@ -145,38 +176,25 @@ public class HeimdallServer extends AbstractVerticle {
 		return false;
 	}
 	@Override
+	
+	
 	public void start()throws Exception{
-		vertx = Vertx.vertx();
+		
 		scatt_register();
-		String ip = Inet4Address.getLocalHost().getHostAddress();
-		
-		
-		DeploymentOptions options = new DeploymentOptions()
-				.setConfig(new JsonObject()
-						.put("host",ip)
-						.put("port",5055)
-						.put("config", value)
-						.put("url","jdbc:mysql://localhost:3306/Heimdall")
-						.put("driver_class","com.mysql.jdbc.Driver")
-						);
 		
 		
 		
 		
 		
+		/*
 		
 		ShellService service = ShellService.create(vertx,
 				new ShellServiceOptions().setSSHOptions(
 						new SSHTermOptions().
 						setHost(ip).
-						setPort(5500).
-						setKeyPairOptions(new JksOptions().
-								setPath("server-keystore.jks").
-								setPassword("wibble")
-								).
-						setAuthOptions(new JDBCAuthOptions()
+						setPort(5500).setAuthOptions(new JDBCAuthOptions().)
 								
-								
+		*/						
 								
 								
 								/*new ShiroAuthOptions().
@@ -191,11 +209,11 @@ public class HeimdallServer extends AbstractVerticle {
 		
 		
 		
-		/*WORKS
+		
 		ShellService service = ShellService.create(vertx, new ShellServiceOptions().setTelnetOptions(
 		        new TelnetTermOptions().setHost(ip).setPort(3000)
 		    ).setWelcomeMessage(heimdallWelcome));
-		*/
+		
 		
 		
 		CommandRegistry.getShared(vertx).registerCommand(scatter);	
