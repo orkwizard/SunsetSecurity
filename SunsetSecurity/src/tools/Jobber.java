@@ -17,6 +17,7 @@ public class Jobber  {
 	JobKey jobKey;
 	JobDetail jobDetail;
 	Trigger trigger;
+	boolean isRunning;
 	
 	
 	public Jobber(int interval) throws SchedulerException{
@@ -30,22 +31,17 @@ public class Jobber  {
 	
 	public void run() throws SchedulerException{
 		scheduler.scheduleJob(jobDetail,trigger);
+		isRunning=true;
 	}
 	
 	public boolean isRunning(){
-		try {
-			return scheduler.isStarted();
-			
-		} catch (SchedulerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
+		return isRunning;
 	}
 	
 	public void stop() throws SchedulerException{
 		System.out.println("Stoping Jobber");
 		scheduler.shutdown();
+		isRunning=false;
 	}
 	
 	public static void main(String[] args){

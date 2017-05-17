@@ -5,8 +5,6 @@ import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.text.html.HTMLEditorKit.Parser;
-
 import org.quartz.SchedulerException;
 
 import io.vertx.core.AbstractVerticle;
@@ -21,7 +19,6 @@ import io.vertx.ext.shell.ShellService;
 import io.vertx.ext.shell.ShellServiceOptions;
 import io.vertx.ext.shell.command.Command;
 import io.vertx.ext.shell.command.CommandBuilder;
-import io.vertx.ext.shell.command.CommandProcess;
 import io.vertx.ext.shell.command.CommandRegistry;
 import io.vertx.ext.shell.term.SSHTermOptions;
 import io.vertx.ext.sql.SQLConnection;
@@ -49,6 +46,7 @@ public class HeimdallServer extends AbstractVerticle {
 	
 	
 	
+	@SuppressWarnings("unused")
 	private void  defaultdbuser(){
 		String salt = auth.generateSalt();
 		String hash = auth.computeHash("sys73xrv",salt);
@@ -78,7 +76,7 @@ public class HeimdallServer extends AbstractVerticle {
 		//Creating vertx
 		vertx = Vertx.vertx();
 		jdbc = JDBCClient.createShared(vertx,new JsonObject()
-				.put("url","jdbc:mysql://localhost:3306/Heimdall")
+				.put("url","jdbc:mysql://localhost:3306/Heimdall?useSSL=false")
 				.put("driver_class","com.mysql.jdbc.Driver")
 				.put("user", "root")
 				.put("password", "sys73xrv"));
@@ -103,7 +101,8 @@ public class HeimdallServer extends AbstractVerticle {
 		String command = args.next();
 		System.out.println("Command :-> " + command);
 		switch(command){
-		case "stop":   response = stop_();				break;
+		case "stop":   response = stop_();break;
+		
 		case "start":{
 						if(args.hasNext())
 							response = start(args.next());	
@@ -112,11 +111,14 @@ public class HeimdallServer extends AbstractVerticle {
 							response.setSresult("An integer was expected");
 						}	
 					 }break;
+					 
 		case "status": response = status();				break;
+		
 		case "update": response = update(args.next());	break;
+		
 		default:{
 			response.setResult(false);
-			response.setSresult("Invalid Command");
+			response.setSresult("Invalid Command -> Please check help for more info  \n");
 			response.setComments("Unkown command.. Please check the valid sintaxis");
 			}
 			
@@ -135,15 +137,41 @@ public class HeimdallServer extends AbstractVerticle {
 
 
 	private ParserResponse status() {
-		return null;
 		// TODO Auto-generated method stub
-		
+		ParserResponse response = new ParserResponse();
+		if(jobs==null || !jobs.isRunning()){
+			response.setResult(false);
+			response.setSresult("Scatter is not running ... \n");
+		}else{
+			response.setResult(true);
+			response.setSresult("Scatter is running ...  \n");
+		}
+		return response;
 	}
 
 
 
 	private ParserResponse stop_() {
-		return null;
+		ParserResponse response = new ParserResponse();
+		if(jobs==null){
+			response.setSresult("Not running yet \n");
+			response.setResult(false);
+		}else{
+			if(jobs.isRunning()){
+				try {
+					jobs.stop();
+					response.setSresult("Scatter stoped successfully \n");
+					response.setResult(true);
+					
+				} catch (SchedulerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
+			
+		return response;
 		// TODO Auto-generated method stub
 		
 	}
@@ -156,15 +184,21 @@ public class HeimdallServer extends AbstractVerticle {
 		try{
 			int interval = Integer.parseInt(next);
 			System.out.println("Interval : ->" + interval);
-			jobs = new Jobber(interval);
-			jobs.run();
+			if(jobs == null || !jobs.isRunning()){
+				jobs = new Jobber(interval);
+				jobs.run();
+			}else{
+				if(jobs.isRunning())
+					response.setSresult("Already running... Please stop the scatter first");
+				return response;
+			}
 			response.setResult(true);
-			response.setComments("Running Scatter sucessfully");
+			response.setSresult("Running Scatter sucessfully \n");
 		}
-		catch(Exception  e){
+		catch(NumberFormatException | SchedulerException  e){
 			response.setResult(false);
-			response.setSresult("An error happened");
-			response.setComments(e.toString());
+			response.setSresult("An error happened : \n");
+			response.setComments(e.toString()+"\n");
 		}
 		return response;
 	}
@@ -184,86 +218,8 @@ public class HeimdallServer extends AbstractVerticle {
 		}).build(vertx);
 		
 	}
-	
-	
-	
-	/*
-	private void scatt_register(){
-		scatter = CommandBuilder.command("scatter").processHandler(process ->{
-			
-			
-			 
-			
-			List<String> args = process.args();
-			
-			if(args.isEmpty()){
-				process.write("Usage: start <interval> | stop | status | register | update <interval> \n");
-				process.end();
-			}else{
-				int size = args.size();
-				String command = args.get(0);
-				System.out.println(command);
-				
-				switch(command){
-				case "stop":{
-					try {
-						jobs.stop();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					process.end();
-					
-				}break;
-				case "status":{
-					if(jobs!=null)
-						process.write(jobs.isRunning()+"");
-					else
-						process.write("Scatter not running \n\n");
-					process.end();
-					
-				}break;
-				case "start":{
-					
-					
-					boolean valid = startCommand(args);
-					
-					
-					if(!(size>1)){
-						
-						break;
-					}
-					int interval;
-					try{
-						interval = Integer.parseInt(args.get(1));
-					}catch(NumberFormatException ex){
-						process.write("An integer was expected");
-						process.end();
-						break;
-					}
-					try {
-						jobs = new Jobber(interval);
-						jobs.run();
-						process.write("Running Scatter at : " + interval +"seconds");
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					process.end();
-				}break;
-				}
-				
-			}
-			
-			}).build(vertx);
-	};
-	
-	*/
 
 	
-
-
-
 	private void initServer(){
 		service = ShellService.create(vertx,
 			    new ShellServiceOptions().setSSHOptions(
@@ -275,7 +231,7 @@ public class HeimdallServer extends AbstractVerticle {
 			                    setPassword("sys73xrv")
 			            ).
 			            setAuthOptions(new JDBCAuthOptions().setConfig(new JsonObject()
-			                    .put("url", "jdbc:mysql://localhost:3306/Heimdall")
+			                    .put("url", "jdbc:mysql://localhost:3306/Heimdall?useSSL=false")
 			                    .put("driver_class", "com.mysql.jdbc.Driver"))
 			            )
 			    ).setWelcomeMessage(heimdallWelcome)
@@ -283,7 +239,7 @@ public class HeimdallServer extends AbstractVerticle {
 	}
 	
 	@Override
-	public void start()throws Exception{
+	public void start(){
 		scatt_register();
 		CommandRegistry.getShared(vertx).registerCommand(scatter);	
 		service.start(ar -> {
@@ -297,14 +253,16 @@ public class HeimdallServer extends AbstractVerticle {
 	public static void main(String[] args){
 		HeimdallServer server = new HeimdallServer();
 		server.initServer();
-		try {
-			server.start();
+		
+			try {
+				server.start();
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			System.out.println("Server initialized");
 			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 
