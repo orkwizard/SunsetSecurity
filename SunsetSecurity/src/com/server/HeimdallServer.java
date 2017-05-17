@@ -2,10 +2,16 @@ package com.server;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.text.html.HTMLEditorKit.Parser;
+
+import org.quartz.SchedulerException;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.auth.jdbc.JDBCAuth;
@@ -15,23 +21,18 @@ import io.vertx.ext.shell.ShellService;
 import io.vertx.ext.shell.ShellServiceOptions;
 import io.vertx.ext.shell.command.Command;
 import io.vertx.ext.shell.command.CommandBuilder;
+import io.vertx.ext.shell.command.CommandProcess;
 import io.vertx.ext.shell.command.CommandRegistry;
 import io.vertx.ext.shell.term.SSHTermOptions;
-import io.vertx.ext.shell.term.TermServer;
+import io.vertx.ext.sql.SQLConnection;
 import tools.Jobber;
 
 public class HeimdallServer extends AbstractVerticle {
 
 	private Vertx vertx;
-	private TermServer server;
-	
 	private JDBCClient jdbc;
-	
-	
 	private Command scatter;
-	
 	private Jobber jobs;
-	
 	private String heimdallWelcome=""+
 "#  #     # ####### ### #     # ######     #    #       #       \n"+
 "#  #     # #        #  ##   ## #     #   # #   #       #       \n"+
@@ -43,9 +44,27 @@ public class HeimdallServer extends AbstractVerticle {
 	
 	
 	private String ip;
-	
 	private JDBCAuth auth;
+	private ShellService service;
 	
+	
+	
+	private void  defaultdbuser(){
+		String salt = auth.generateSalt();
+		String hash = auth.computeHash("sys73xrv",salt);
+
+		 jdbc.getConnection(res -> {
+			  if (res.succeeded()) {
+				    SQLConnection conn = res.result();
+				    conn.updateWithParams("INSERT INTO user VALUES (?, ?, ?)", new JsonArray().add("eosorio").add(hash).add(salt), resa -> {
+				    	  if (resa.succeeded()) {
+				    	    System.out.println("Added User");
+				    	    conn.close();
+				    	  }
+				 });
+			  }
+		});
+	}
 	
 	public HeimdallServer(){
 		super();
@@ -58,58 +77,123 @@ public class HeimdallServer extends AbstractVerticle {
 		//lookforAsgard();
 		//Creating vertx
 		vertx = Vertx.vertx();
-		
-		//Creating DataBase Connection 
-		//Asgard will return this data!!
-		
 		jdbc = JDBCClient.createShared(vertx,new JsonObject()
 				.put("url","jdbc:mysql://localhost:3306/Heimdall")
 				.put("driver_class","com.mysql.jdbc.Driver")
 				.put("user", "root")
 				.put("password", "sys73xrv"));
-		
-		
 		auth = JDBCAuth.create(vertx, jdbc);
 		
-		
-		
+		//defaultdbuser();	
+	}
+	
+	
+	private ParserResponse parse(Iterator<String> args){
 		/*
+		 * Options:
 		 * 
-		String salt = auth.generateSalt();
-		String hash = auth.computeHash("sys73xrv",salt);
+			 * start <interval>
+			 * status
+			 * stop
+			 * update <interval>
+			 * 
+		 */
+		ParserResponse response= new ParserResponse();
 		
-		
-		 jdbc.getConnection(res -> {
-			  if (res.succeeded()) {
-				    SQLConnection conn = res.result();
-				    conn.updateWithParams("INSERT INTO user VALUES (?, ?, ?)", new JsonArray().add("eosorio").add(hash).add(salt), resa -> {
-				    	  if (resa.succeeded()) {
-				    	    System.out.println("Added User");
-				    	  }
-				 });
-			  }
-		});
-		
-		*/
-		
-		
-		
-		
+		String command = args.next();
+		System.out.println("Command :-> " + command);
+		switch(command){
+		case "stop":   response = stop_();				break;
+		case "start":{
+						if(args.hasNext())
+							response = start(args.next());	
+						else{
+							response.setResult(false);
+							response.setSresult("An integer was expected");
+						}	
+					 }break;
+		case "status": response = status();				break;
+		case "update": response = update(args.next());	break;
+		default:{
+			response.setResult(false);
+			response.setSresult("Invalid Command");
+			response.setComments("Unkown command.. Please check the valid sintaxis");
+			}
 			
+		}
+		return response;
 	}
 	
 	
 	
+	private ParserResponse update(String next) {
+		return null;
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	private ParserResponse status() {
+		return null;
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	private ParserResponse stop_() {
+		return null;
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	private ParserResponse start(String next) {
+		System.out.println("START with : ->" + next);
+		ParserResponse response = new ParserResponse();
+		try{
+			int interval = Integer.parseInt(next);
+			System.out.println("Interval : ->" + interval);
+			jobs = new Jobber(interval);
+			jobs.run();
+			response.setResult(true);
+			response.setComments("Running Scatter sucessfully");
+		}
+		catch(Exception  e){
+			response.setResult(false);
+			response.setSresult("An error happened");
+			response.setComments(e.toString());
+		}
+		return response;
+	}
+
+
+
+	private void scatt_register(){
+		scatter = CommandBuilder.command("scatter").processHandler(process ->{
+			List<String> args = process.args();
+			if(args.isEmpty())
+				process.write("Usage: start <interval> | stop | status | register | update <interval> \n");
+			else{
+				ParserResponse response = parse(args.iterator());
+				process.write(response.getSresult());
+			}
+			process.end();
+		}).build(vertx);
+		
+	}
+	
+	
+	
+	/*
 	private void scatt_register(){
 		scatter = CommandBuilder.command("scatter").processHandler(process ->{
 			
-			/*
-			 * Only valid are:
-			 * start <interval>
-			 * status
-			 * stop
-			 * 
-			 */
+			
+			 
+			
 			List<String> args = process.args();
 			
 			if(args.isEmpty()){
@@ -146,7 +230,7 @@ public class HeimdallServer extends AbstractVerticle {
 					
 					
 					if(!(size>1)){
-						process.write("Sintaxis: scatter start <interval> \n");
+						
 						break;
 					}
 					int interval;
@@ -174,34 +258,18 @@ public class HeimdallServer extends AbstractVerticle {
 			}).build(vertx);
 	};
 	
+	*/
+
 	
-	private boolean startCommand(List<String> args) {
-		// TODO Auto-generated method stub
-		// Valida que se cumplan los valores
-		int size = args.size();
-		int interval;
-		if(size > 1)
-			try{
-				interval = Integer.parseInt(args.get(1));
-			}catch(NumberFormatException e){
-				e.printStackTrace();
-			}
-			
-		
-		return false;
-	}
-	@Override
-	
-	
-	public void start()throws Exception{
-		
-		scatt_register();
-		
-		ShellService service = ShellService.create(vertx,
+
+
+
+	private void initServer(){
+		service = ShellService.create(vertx,
 			    new ShellServiceOptions().setSSHOptions(
 			        new SSHTermOptions().
 			            setHost(ip).
-			            setPort(5000).
+			            setPort(2020).
 			            setKeyPairOptions(new JksOptions().
 			                    setPath("keystore.jks").
 			                    setPassword("sys73xrv")
@@ -210,115 +278,28 @@ public class HeimdallServer extends AbstractVerticle {
 			                    .put("url", "jdbc:mysql://localhost:3306/Heimdall")
 			                    .put("driver_class", "com.mysql.jdbc.Driver"))
 			            )
-			    )
+			    ).setWelcomeMessage(heimdallWelcome)
 			);
-		
-		System.out.println("Server initialized");
-		
-		
-		
-		/*
-		
-		ShellService service = ShellService.create(vertx,
-				new ShellServiceOptions().setSSHOptions(
-						new SSHTermOptions().
-						setHost(ip).
-						setPort(5500).setAuthOptions(new JDBCAuthOptions().)
-								
-		*/						
-								
-								
-								/*new ShiroAuthOptions().
-								setType(ShiroAuthRealmType.PROPERTIES).
-								setConfig(new JsonObject().
-										put("properties_path","")
-										)
-								)
-						);*/
-										
-		
-		
-		
-		/*
-		
-		ShellService service = ShellService.create(vertx, new ShellServiceOptions().setTelnetOptions(
-		        new TelnetTermOptions().setHost(ip).setPort(3000)
-		    ).setWelcomeMessage(heimdallWelcome));
-		
-		*/
-		
-		
+	}
+	
+	@Override
+	public void start()throws Exception{
+		scatt_register();
 		CommandRegistry.getShared(vertx).registerCommand(scatter);	
 		service.start(ar -> {
 		      if (!ar.succeeded()) {
 		          ar.cause().printStackTrace();
 		        }
 		});
-		
 	}
 	
 	
-	
-	/*
-	@Override
-	public void start() throws Exception{
-		Vertx vertx = Vertx.vertx();
-		
-		NetServer server = vertx.createNetServer();
-		
-		server.connectHandler(new Handler<NetSocket>() {
-
-            @Override
-            public void handle(NetSocket netSocket) {
-                System.out.println("Incoming connection!");
-                
-                netSocket.handler(new Handler<Buffer>() {
-					
-					@Override
-					public void handle(Buffer buffer) {
-						// TODO Auto-generated method stub
-						
-						
-						System.out.println("command: "+buffer.toString());
-						
-						ScreenTaker screen = new ScreenTaker(null);
-						BufferedImage image = null ; //screen.capture();
-						
-                        //buffer.getString(0,buffer.length());
-						System.out.println("ScreenSize Image "+ image.getHeight()+":"+image.getWidth());
-						
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        
-                        try {
-							ImageIO.write(image,"jpg",baos);
-							 baos.flush();
-							 
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-                       
-                        byte[] imageInByte = baos.toByteArray();
-                        System.out.println("Size Bytes (Image in Bytes) " + imageInByte.length);
-                        
-                        Buffer outBuffer = Buffer.buffer(imageInByte);
-                        
-                        netSocket.write(outBuffer);
-                        
-                        System.out.println("Sent Image");
-					}
-				});
-            }
-        });
-		server.listen(3000);
-	}
-	
-	
-*/
 	public static void main(String[] args){
 		HeimdallServer server = new HeimdallServer();
+		server.initServer();
 		try {
 			server.start();
+			System.out.println("Server initialized");
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
