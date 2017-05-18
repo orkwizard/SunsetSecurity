@@ -23,7 +23,15 @@ import java.sql.Timestamp;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.jdbc.JDBCAuth;
+import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.ext.sql.SQLConnection;
+
 import javax.imageio.ImageIO;
+import javax.swing.JScrollBar;
 
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.MultiPartEmail;
@@ -45,6 +53,14 @@ public class ScreenTaker{
 	
 	//private String date;
 	//private Scheduler scheduler;
+	
+	//private JDBCClient jdbc;
+	//private JDBCAuth auth;
+	//private Vertx vertx;
+	
+	private static String default_url = "jdbc:mysql://localhost:3306/Heimdall?useSSL=false";
+	private static String default_user ="root";
+	private static String default_passwd ="sys73xrv";
 
 	
 	private void setNetworkData() throws UnknownHostException{
@@ -66,10 +82,20 @@ public class ScreenTaker{
 		emailconfig.setEmail_to_send("orkwizard@gmail.com");
 		emailconfig.setPort(587);
 		
+		
+		/*jdbc = JDBCClient.createShared(vertx,new JsonObject()
+				.put("url",default_url)
+				.put("driver_class","com.mysql.jdbc.Driver")
+				.put("user", default_user)
+				.put("password",default_passwd ));
+		auth = JDBCAuth.create(vertx, jdbc);
+		*/
+		
+		
 		DBConfig dbconfig = new DBConfig();
-		dbconfig.setConnectionURL("jdbc:mysql://localhost:3306/Heimdall");
-		dbconfig.setDbUser("root");
-		dbconfig.setDbPassword("sys73xrv");
+		dbconfig.setConnectionURL(default_url);
+		dbconfig.setDbUser(default_user);
+		dbconfig.setDbPassword(default_passwd);
 		
 		conf.setEmail_config(emailconfig);
 		conf.setDb_config(dbconfig);
@@ -96,21 +122,40 @@ public class ScreenTaker{
 	
 	
 	public ScreenTaker(Config con){
+		
+		//vertx = Vertx.vertx();
+		
 		try {
 			setNetworkData();
 			if(con==null)
-				defaultConfig();		
+				defaultConfig();
+			else{
+				configureDB(con);
+				configureEMAIL(con);
+			}
 			robot = new Robot();
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			conn = DriverManager.getConnection(conf.getDb_config().getConnectionURL(),conf.getDb_config().getDbUser(),conf.getDb_config().getDbPassword());
 			
-		} catch (UnknownHostException | AWTException | SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+		} catch (UnknownHostException | AWTException | InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 	}
 	
 	
+	private void configureEMAIL(Config con) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private void configureDB(Config con) {
+	// TODO Auto-generated method stub
+	
+}
+
+
 	private BufferedImage capture(){
 		System.out.println("Capturing Image......");
 		BufferedImage img = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
@@ -195,7 +240,25 @@ public class ScreenTaker{
 	}
 
 	public void storeDB() throws InstantiationException, IllegalAccessException{
-		
+	/*	jdbc.getConnection(res->{
+			if(res.succeeded())
+			{
+				conn = res.result();
+				try {
+					conn.queryWithParams("INSERT INTO snapshot(date,ip,hostname,image) values(?,?,?,?)",new JsonArray().add(new java.sql.Timestamp(date.toDateTime().getMillis())).add(getHostName()).add(new FileInputStream(output)) , res2->{
+						if(res2.succeeded())
+							System.out.println("Stored in Database");
+					});
+				conn.close();
+				
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+	*/	
+
 		ResultSet rs = null;
 		PreparedStatement pst= null;
 		FileInputStream fis = null;
@@ -215,17 +278,11 @@ public class ScreenTaker{
 				System.out.println("Stored Database");
 			else
 				System.out.println("Error Storing Database");
-			
-			
-			
 					
 		} catch (SQLException | FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
 	}
 
 	

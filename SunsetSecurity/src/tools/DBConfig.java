@@ -6,7 +6,14 @@ public class DBConfig {
 	private String dbUser;
 	private String dbPassword;
 	private String schema;
+	private String driver;
 	
+	public String getDriver() {
+		return driver;
+	}
+	public void setDriver(String driver) {
+		this.driver = driver;
+	}
 	public String getConnectionURL() {
 		return connectionURL;
 	}
