@@ -1,0 +1,11 @@
+@import "addons.scss";
+@import "sunsetsecurityweb.scss";
+@import "designs.scss";
+
+/* This file prefixes all rules with the theme name to avoid causing conflicts with other themes. */
+/* The actual styles should be defined in sunsetsecurityweb.scss */
+.sunsetsecurityweb {
+  @include vaadin-app-shell-template;
+  @include addons;
+  @include sunsetsecurityweb;
+}
