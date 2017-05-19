@@ -22,13 +22,18 @@ import io.vertx.ext.shell.command.CommandBuilder;
 import io.vertx.ext.shell.command.CommandRegistry;
 import io.vertx.ext.shell.term.SSHTermOptions;
 import io.vertx.ext.sql.SQLConnection;
+import tools.Config;
 import tools.Jobber;
 
 public class HeimdallServer extends AbstractVerticle {
 
 	private Vertx vertx;
 	private JDBCClient jdbc;
+	
 	private Command scatter;
+	private Command configure;
+	private boolean isConfigured;
+	
 	private Jobber jobs;
 	private String heimdallWelcome=""+
 "#  #     # ####### ### #     # ######     #    #       #       \n"+
@@ -38,6 +43,10 @@ public class HeimdallServer extends AbstractVerticle {
 "#  #     # #        #  #     # #     # ####### #       #       \n"+
 "#  #     # #        #  #     # #     # #     # #       #       \n"+
 "#  #     # ####### ### #     # ######  #     # ####### ####### \n\n\n";
+	
+	private static String Asgard="localhost";
+	
+	private Config config;
 	
 	
 	private String ip;
@@ -72,9 +81,11 @@ public class HeimdallServer extends AbstractVerticle {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		//lookforAsgard();
 		//Creating vertx
 		vertx = Vertx.vertx();
+		callAsgard();
 		jdbc = JDBCClient.createShared(vertx,new JsonObject()
 				.put("url","jdbc:mysql://localhost:3306/Heimdall?useSSL=false")
 				.put("driver_class","com.mysql.jdbc.Driver")
@@ -86,6 +97,12 @@ public class HeimdallServer extends AbstractVerticle {
 	}
 	
 	
+	private void callAsgard() {
+		// Call DB and obtain configuration
+		
+		
+	}
+
 	private ParserResponse parse(Iterator<String> args){
 		/*
 		 * Options:
@@ -127,14 +144,10 @@ public class HeimdallServer extends AbstractVerticle {
 	}
 	
 	
-	
 	private ParserResponse update(String next) {
 		return null;
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
 	}
-
-
 
 	private ParserResponse status() {
 		// TODO Auto-generated method stub
@@ -148,8 +161,6 @@ public class HeimdallServer extends AbstractVerticle {
 		}
 		return response;
 	}
-
-
 
 	private ParserResponse stop_() {
 		ParserResponse response = new ParserResponse();
@@ -176,8 +187,6 @@ public class HeimdallServer extends AbstractVerticle {
 		
 	}
 
-
-
 	private ParserResponse start(String next) {
 		System.out.println("START with : ->" + next);
 		ParserResponse response = new ParserResponse();
@@ -203,8 +212,6 @@ public class HeimdallServer extends AbstractVerticle {
 		return response;
 	}
 
-
-
 	private void scatt_register(){
 		scatter = CommandBuilder.command("scatter").processHandler(process ->{
 			List<String> args = process.args();
@@ -219,7 +226,30 @@ public class HeimdallServer extends AbstractVerticle {
 		
 	}
 
+	private void configure_register(){
+		configure = CommandBuilder.command("configure").processHandler(process ->{
+			List<String> args = process.args();
+			if(args.isEmpty())
+				process.write("Usage: configure <URL>");
+			else{
+				ParserResponse response = parse(args.get(0));
+				process.write(response.getSresult());
+			}
+			process.end();
+		}).build(vertx);
+	}
 	
+	
+	private ParserResponse parse(String string) {
+		// Try to connect to the Asgard DB and get all the configuration Data
+		// 
+		ParserResponse response = new ParserResponse();
+		
+		
+		
+		return response;
+	}
+
 	private void initServer(){
 		service = ShellService.create(vertx,
 			    new ShellServiceOptions().setSSHOptions(
