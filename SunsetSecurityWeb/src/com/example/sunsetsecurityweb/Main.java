@@ -25,8 +25,8 @@ public class Main extends HorizontalLayout {
 	protected Button dashboard;
 	protected Button reports;
 	protected Button customize;
-	protected Button customize1;
 	protected Button admin;
+	protected Button login;
 	protected Label viewTitle;
 	protected CssLayout content;
 

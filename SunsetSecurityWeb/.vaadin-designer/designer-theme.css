@@ -1557,6 +1557,107 @@ div.v-layout.v-horizontal.v-widget {
 	vertical-align: top;
 }
 
+.sunsetsecurityweb .crud-template .top-bar {
+	background: white;
+	color: #197de1;
+	padding: 0 18.5px;
+	border-bottom: 1px solid #c5c5c5;
+}
+
+.sunsetsecurityweb .crud-template .padding {
+	padding: 18.5px;
+}
+
+.sunsetsecurityweb .crud-template .border {
+	border: 1px solid #c5c5c5;
+}
+
+.sunsetsecurityweb .crud-template .border-top {
+	border-top: 1px solid #c5c5c5;
+}
+
+.sunsetsecurityweb .crud-template .border-left {
+	border-left: 1px solid #c5c5c5;
+}
+
+.sunsetsecurityweb .crud-template .filters {
+	padding: 9.25px;
+}
+
+.sunsetsecurityweb .crud-template .filters .v-slot {
+	position: relative;
+}
+
+.sunsetsecurityweb .crud-template .content {
+	position: relative;
+}
+
+.sunsetsecurityweb .crud-template .list {
+	padding-right: 300px;
+}
+
+.sunsetsecurityweb .crud-template .inspect {
+	position: absolute;
+	right: 0;
+	top: 0;
+	background: #ededed;
+	width: 300px !important;
+	border-left: 4px solid #e0e0e0;
+}
+
+.sunsetsecurityweb .crud-template .section {
+	padding: 9.25px;
+}
+
+.sunsetsecurityweb .crud-template .edit {
+	padding: 9.25px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-left: 1px solid #d4d4d4;
+	border-top: 1px solid #d4d4d4;
+}
+
+.sunsetsecurityweb .crud-template .search {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	border-bottom: 2px solid #197de1;
+	border-radius: 0;
+	max-width: 350px;
+}
+
+.sunsetsecurityweb .crud-template .buttons {
+	background: #fafafa;
+	padding: 9.25px;
+	border-left: 1px solid #d4d4d4;
+}
+
+.sunsetsecurityweb .crud-template[width-range~="-850px"] .list {
+	height: 50% !important;
+	padding-right: 0;
+}
+
+.sunsetsecurityweb .crud-template[width-range~="-850px"] .inspect {
+	position: static;
+	height: 50% !important;
+	width: 100% !important;
+	border-top: 4px solid #e0e0e0;
+	border-left: none;
+}
+
+.sunsetsecurityweb .crud-template[width-range~="-850px"] .section, .sunsetsecurityweb .crud-template[width-range~="-850px"] .edit {
+	padding: 4.625px;
+}
+
+.sunsetsecurityweb .crud-template[width-range~="-850px"] .half {
+	width: 50% !important;
+	float: left;
+}
+
+.sunsetsecurityweb .crud-template[width-range~="-650px"] .half {
+	width: 100% !important;
+}
+
 .sunsetsecurityweb .app-shell .custom-menubar .v-menubar-menuitem {
 	position: relative;
 }
