@@ -28,13 +28,8 @@ public class SunsetsecuritywebUI extends UI {
 	@Override
 	protected void init(VaadinRequest request) {
 		final VerticalLayout layout = new VerticalLayout();
-		DefaultVerticalLoginForm login = new DefaultVerticalLoginForm();
-		
 		Main main = new Main();
-		layout.setMargin(false);
-		login.setVisible(true);
-		main.content.addComponent(login);
-		
+		layout.setMargin(true);
 		setContent(main);
 		/*final VerticalLayout layout = new VerticalLayout();
 		layout.setMargin(true);
