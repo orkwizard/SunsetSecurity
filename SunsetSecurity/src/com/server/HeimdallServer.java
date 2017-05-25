@@ -229,6 +229,18 @@ public class HeimdallServer extends AbstractVerticle {
 		
 	}
 
+	
+	
+	private ParserResponse parse(String string) {
+		// Try to connect to the Asgard DB and get all the configuration Data
+		// 
+		ParserResponse response = new ParserResponse();
+		
+		
+		
+		return response;
+	}
+	
 	private void configure_register(){
 		configure = CommandBuilder.command("configure").processHandler(process ->{
 			List<String> args = process.args();
@@ -243,15 +255,7 @@ public class HeimdallServer extends AbstractVerticle {
 	}
 	
 	
-	private ParserResponse parse(String string) {
-		// Try to connect to the Asgard DB and get all the configuration Data
-		// 
-		ParserResponse response = new ParserResponse();
-		
-		
-		
-		return response;
-	}
+	
 
 	private void initServer(){
 		service = ShellService.create(vertx,
