@@ -2,6 +2,8 @@ package com.server;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,7 +46,7 @@ public class HeimdallServer extends AbstractVerticle {
 "#  #     # #        #  #     # #     # #     # #       #       \n"+
 "#  #     # ####### ### #     # ######  #     # ####### ####### \n\n\n";
 	
-	private static String Asgard="localhost";
+	private  String Asgard="localhost";
 	
 	private Config config;
 	
@@ -52,6 +54,7 @@ public class HeimdallServer extends AbstractVerticle {
 	private String ip;
 	private JDBCAuth auth;
 	private ShellService service;
+	
 	
 	
 	
@@ -68,7 +71,7 @@ public class HeimdallServer extends AbstractVerticle {
 				    	    System.out.println("Added User");
 				    	    conn.close();
 				    	  }
-				 });
+				 }); 
 			  }
 		});
 	}
@@ -281,8 +284,15 @@ public class HeimdallServer extends AbstractVerticle {
 	
 	
 	public static void main(String[] args){
+		int len = args.length;
+		ArrayList<String> array = new ArrayList<String>();
+		for(int i=0;i<len;i++)
+			array.add(args[i].toString());
+		
 		HeimdallServer server = new HeimdallServer();
+		System.out.println(array.toString());
 		server.initServer();
+		
 		
 			try {
 				server.start();
