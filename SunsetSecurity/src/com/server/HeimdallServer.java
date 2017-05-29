@@ -76,7 +76,7 @@ public class HeimdallServer extends AbstractVerticle {
 		});
 	}
 	
-	public HeimdallServer(){
+	public HeimdallServer(String asgard){
 		super();
 		try {
 			ip = Inet4Address.getLocalHost().getHostAddress();
@@ -88,20 +88,43 @@ public class HeimdallServer extends AbstractVerticle {
 		//lookforAsgard();
 		//Creating vertx
 		vertx = Vertx.vertx();
-		callAsgard();
+		
+		callAsgard(asgard);
+		
+		
 		jdbc = JDBCClient.createShared(vertx,new JsonObject()
-				.put("url","jdbc:mysql://localhost:3306/Heimdall?useSSL=false")
+				.put("url","jdbc:mysql://"+config.getDb_config().getConnectionURL()+":3306/Heimdall?useSSL=false")
 				.put("driver_class","com.mysql.jdbc.Driver")
 				.put("user", "root")
 				.put("password", "sys73xrv"));
 		auth = JDBCAuth.create(vertx, jdbc);
 		
+		
+		
 		//defaultdbuser();	
 	}
 	
 	
-	private void callAsgard() {
+	private boolean callAsgard(String asgardServer) {
 		// Call DB and obtain configuration
+		config = new Config();
+		JDBCClient asgard = JDBCClient.createShared(vertx, new JsonObject()
+				.put("url","jdbc:mysql://"+asgardServer+":3306/Heimdall?useSSL=false")
+				.put("driver_class","com.mysql.jdbc.Driver")
+				.put("user","root")
+				.put("password","sys73xrv")
+				);
+		
+		jdbc.getConnection(res->{
+			if(res.succeeded()){
+				
+				SQLConnection conn = res.result();
+				conn.execute("", arg1)
+			}
+			});
+		
+		return false;
+		
 		
 		
 	}
@@ -268,7 +291,7 @@ public class HeimdallServer extends AbstractVerticle {
 			                    setPassword("sys73xrv")
 			            ).
 			            setAuthOptions(new JDBCAuthOptions().setConfig(new JsonObject()
-			                    .put("url", "jdbc:mysql://localhost:3306/Heimdall?useSSL=false")
+			                    .put("url", "jdbc:mysql://"+config.getDb_config().getConnectionURL()+":3306/Heimdall?useSSL=false")
 			                    .put("driver_class", "com.mysql.jdbc.Driver"))
 			            )
 			    ).setWelcomeMessage(heimdallWelcome)
@@ -293,7 +316,7 @@ public class HeimdallServer extends AbstractVerticle {
 		for(int i=0;i<len;i++)
 			array.add(args[i].toString());
 		
-		HeimdallServer server = new HeimdallServer();
+		HeimdallServer server = new HeimdallServer(array.get(0));
 		System.out.println(array.toString());
 		server.initServer();
 		
