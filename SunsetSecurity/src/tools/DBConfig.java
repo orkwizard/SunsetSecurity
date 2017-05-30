@@ -41,7 +41,7 @@ public class DBConfig {
 	@Override
 	public String toString() {
 		return "DBConfig [connectionURL=" + connectionURL + ", dbUser=" + dbUser + ", dbPassword=" + dbPassword
-				+ ", schema=" + schema + "]";
+				+ ", schema=" + schema + ", driver=" + driver + "]";
 	}
 	
 	
