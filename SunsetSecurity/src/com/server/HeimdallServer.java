@@ -108,6 +108,8 @@ public class HeimdallServer extends AbstractVerticle {
 		// Call DB and obtain configuration
 		config = new Config();
 		vertx = Vertx.vertx();
+		boolean success= false;
+		
 		JDBCClient asgard = JDBCClient.createShared(vertx, new JsonObject()
 				.put("url","jdbc:mysql://"+asgardServer+":3306/Heimdall?useSSL=false")
 				.put("driver_class","com.mysql.jdbc.Driver")
@@ -138,7 +140,6 @@ public class HeimdallServer extends AbstractVerticle {
 						
 						System.out.println("Configuration ->" + config.toString());
 						
-						
 						conn.close();
 						
 						
@@ -151,7 +152,7 @@ public class HeimdallServer extends AbstractVerticle {
 		}
 		);
 		
-		return true;
+		return success;
 		
 		
 		
