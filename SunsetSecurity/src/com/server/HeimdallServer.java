@@ -57,7 +57,7 @@ public class HeimdallServer extends AbstractVerticle {
 	private String ip;
 	private JDBCAuth auth;
 	private ShellService service;
-	
+	private String asgard;
 	
 	
 	
@@ -79,8 +79,10 @@ public class HeimdallServer extends AbstractVerticle {
 		});
 	}
 	
-	public HeimdallServer(String asgard){
+	public HeimdallServer(String a){
 		super();
+		this.asgard = a;
+		
 		try {
 			ip = Inet4Address.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
@@ -287,9 +289,6 @@ public class HeimdallServer extends AbstractVerticle {
 		// Try to connect to the Asgard DB and get all the configuration Data
 		// 
 		ParserResponse response = new ParserResponse();
-		
-		
-		
 		return response;
 	}
 	
@@ -322,7 +321,7 @@ public class HeimdallServer extends AbstractVerticle {
 			                    setPassword("sys73xrv")
 			            ).
 			            setAuthOptions(new JDBCAuthOptions().setConfig(new JsonObject()
-			                    .put("url", "jdbc:mysql://localhost:3306/Heimdall?useSSL=false")
+			                    .put("url", "jdbc:mysql://"++":3306/Heimdall?useSSL=false")
 			                    .put("driver_class","com.mysql.jdbc.Driver"))
 			            )
 			    ).setWelcomeMessage(heimdallWelcome)

