@@ -2,8 +2,6 @@ package com.server;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,7 +21,6 @@ import io.vertx.ext.shell.command.Command;
 import io.vertx.ext.shell.command.CommandBuilder;
 import io.vertx.ext.shell.command.CommandRegistry;
 import io.vertx.ext.shell.term.SSHTermOptions;
-import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import tools.Config;
 import tools.DBConfig;
@@ -36,6 +33,8 @@ public class HeimdallServer extends AbstractVerticle {
 	private JDBCClient jdbc;
 	
 	private Command scatter;
+	private Command keylog;
+	
 	private Command configure;
 	private boolean isConfigured;
 	
@@ -283,6 +282,18 @@ public class HeimdallServer extends AbstractVerticle {
 		
 	}
 
+	private void keylog_register(){
+		keylog = CommandBuilder.command("keylog").processHandler(process->{
+			List<String> args = process.args();
+			if(args.isEmpty())
+				process.write("Usage: start <interval> | stop | status | register | update <interval> \n");
+			else{
+				ParserResponse response = parse(args.iterator());
+				process.write(response.getSresult());
+			}
+			process.end();	
+		}).build(vertx);
+	}
 	
 	
 	private ParserResponse parse(String string) {
@@ -321,7 +332,7 @@ public class HeimdallServer extends AbstractVerticle {
 			                    setPassword("sys73xrv")
 			            ).
 			            setAuthOptions(new JDBCAuthOptions().setConfig(new JsonObject()
-			                    .put("url", "jdbc:mysql://"++":3306/Heimdall?useSSL=false")
+			                    .put("url", "jdbc:mysql://"+asgard+":3306/Heimdall?useSSL=false")
 			                    .put("driver_class","com.mysql.jdbc.Driver"))
 			            )
 			    ).setWelcomeMessage(heimdallWelcome)
@@ -343,10 +354,7 @@ public class HeimdallServer extends AbstractVerticle {
 	public static void main(String[] args){
 		int len = args.length;
 		System.out.println("Args->" + args[0]);
-	
-		
 		HeimdallServer server = new HeimdallServer(args[0]);
-		
 		server.initServer();
 		
 		

