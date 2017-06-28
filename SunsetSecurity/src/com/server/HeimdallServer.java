@@ -90,18 +90,28 @@ public class HeimdallServer extends AbstractVerticle {
 		}
 	}
 	
-	private void parseHeimdal(List<String> args){
+	private void optionsHeimdal(List<String> args){
+		Iterator<String> iterator = args.iterator();
+		while(iterator.hasNext()){
+			String option = iterator.next();
+			switch(option){
+			
+			}
+		}
 		
 	}
 	
 	public HeimdallServer(List<String> args){
 		super();
-		this.asgard = args.get(0);
+		asgard = args.get(0);
 		getIP();
 		System.out.println("Calling Asgard .....");
-		if(callAsgard(asgard))
-		System.out.println("Located Asgard .....");
+		if(callAsgard(asgard)){
+			initServer();
+			System.out.println("Initialized Heimdall Server");
+		}
 		args.remove(0);
+		optionsHeimdal(args);
 		
 		
 		/*
