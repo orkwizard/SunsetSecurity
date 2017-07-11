@@ -225,6 +225,10 @@
     	<artifactId>hibernate-validator</artifactId>
     	<version>5.4.1.Final</version>
     </dependency>
+    <dependency>
+    	<groupId>mysql</groupId>
+    	<artifactId>mysql-connector-java</artifactId>
+    </dependency>
   </dependencies>
   <repositories>
     <repository>
