@@ -28,6 +28,7 @@ public class MainViewDesign extends HorizontalLayout {
 	protected Button dashboard;
 	protected Button users;
 	protected Button products;
+	protected Button configProfile;
 	protected Button logout;
 	protected VerticalLayout content;
 

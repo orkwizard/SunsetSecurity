@@ -16,6 +16,8 @@ import com.vaadin.spring.annotation.UIScope;
 import mx.com.sunset.heimdall.ui.navigation.NavigationManager;
 import mx.com.sunset.heimdall.ui.view.admin.product.ProductAdminView;
 import mx.com.sunset.heimdall.ui.view.admin.user.UserAdminView;
+import mx.com.sunset.heimdall.ui.view.configurationProfile.ConfigurationProfileView;
+import mx.com.sunset.heimdall.ui.view.configurationProfile.ConfigurationProfileViewDesign;
 import mx.com.sunset.heimdall.ui.view.dashboard.DashboardView;
 import mx.com.sunset.heimdall.ui.view.storefront.StorefrontView;
 import com.vaadin.ui.Button;
@@ -49,6 +51,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		attachNavigation(dashboard, DashboardView.class);
 		attachNavigation(users, UserAdminView.class);
 		attachNavigation(products, ProductAdminView.class);
+		attachNavigation(configProfile, ConfigurationProfileView.class);
 
 		logout.addClickListener(e -> logout());
 	}

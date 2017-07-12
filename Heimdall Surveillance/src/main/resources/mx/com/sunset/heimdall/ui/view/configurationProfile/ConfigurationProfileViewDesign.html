@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="design-properties" content="{&quot;RULERS_VISIBLE&quot;:true,&quot;GUIDELINES_VISIBLE&quot;:false,&quot;SNAP_TO_OBJECTS&quot;:true,&quot;SNAP_TO_GRID&quot;:true,&quot;SNAPPING_DISTANCE&quot;:10,&quot;JAVA_SOURCES_ROOT&quot;:&quot;src/main/java&quot;,&quot;THEME&quot;:&quot;apptheme&quot;}">
+  <meta name="vaadin-version" content="8.0.5">
+ </head>
+ <body>
+  <vaadin-vertical-layout style-name="crud-template" spacing="false" responsive size-full margin="false">
+   <vaadin-horizontal-layout style-name="top-bar" spacing="false" width-full height="50px">
+    <vaadin-horizontal-layout spacing="false" width-full :middle :expand>
+     <vaadin-text-field icon="fonticon://Vaadin-Icons/e805" style-name="small inline-icon search" placeholder="Search" width-full _id="search"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-button icon="fonticon://Vaadin-Icons/e801" style-name="borderless" plain-text _id="add" :middle :right>
+      Add new 
+    </vaadin-button>
+   </vaadin-horizontal-layout>
+   <vaadin-css-layout style-name="content" size-full :expand>
+    <vaadin-css-layout style-name="list" size-full>
+     <vaadin-grid size-full data-item-type="mx.com.sunset.heimdall.backend.data.entity.ConfigurationProfile" _id="list">
+      <table>
+       <colgroup>
+        <col column-id="name" sortable>
+        <col column-id="database_server" sortable>
+        <col column-id="port" sortable>
+        <col column-id="scheme" sortable>
+        <col column-id="driver_class" sortable>
+        <col column-id="email_server" sortable>
+        <col column-id="email_user" sortable>
+        <col column-id="email_password" sortable>
+        <col column-id="email_port" sortable>
+        <col column-id="db_user" sortable>
+        <col column-id="db_password" sortable>
+        <col column-id="url" sortable>
+       </colgroup>
+       <thead>
+        <tr default>
+         <th plain-text column-ids="name">Name</th>
+         <th plain-text column-ids="database_server">Database_server</th>
+         <th plain-text column-ids="port">Port</th>
+         <th plain-text column-ids="scheme">Scheme</th>
+         <th plain-text column-ids="driver_class">Driver_class</th>
+         <th plain-text column-ids="email_server">Email_server</th>
+         <th plain-text column-ids="email_user">Email_user</th>
+         <th plain-text column-ids="email_password">Email_password</th>
+         <th plain-text column-ids="email_port">Email_port</th>
+         <th plain-text column-ids="db_user">Db_user</th>
+         <th plain-text column-ids="db_password">Db_password</th>
+         <th plain-text column-ids="url">Url</th>
+        </tr>
+       </thead>
+       <tbody></tbody>
+      </table>
+     </vaadin-grid>
+    </vaadin-css-layout>
+    <vaadin-vertical-layout style-name="inspect" spacing="false" size-full margin="false" _id="form">
+     <vaadin-css-layout style-name="edit" size-full :expand>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Profile Name:" style-name="small" width-full _id="name"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Database server:" style-name="small" width-full _id="database_server"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Database Port:" style-name="small" width-full _id="port"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Database Scheme:" style-name="small" width-full _id="scheme"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Driver class:" style-name="small" width-full _id="driver_class"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Email Server:" style-name="small" width-full _id="email_server"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Email Username:" style-name="small" width-full _id="email_user"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Email Password:" style-name="small" width-full _id="email_password"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Email Port:" style-name="small" width-full _id="email_port"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Database User:" style-name="small" width-full _id="db_user"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Database Password:" style-name="small" width-full _id="db_password"></vaadin-text-field>
+      </vaadin-css-layout>
+      <vaadin-css-layout style-name="section half" width-full>
+       <vaadin-text-field caption="Web page url:" style-name="small" width-full _id="url"></vaadin-text-field>
+      </vaadin-css-layout>
+     </vaadin-css-layout>
+     <vaadin-horizontal-layout style-name="buttons border-top" width-full height="50px">
+      <vaadin-button style-name="small primary" plain-text _id="update" :middle>
+        Update 
+      </vaadin-button>
+      <vaadin-button style-name="small" plain-text _id="cancel" :middle :center>
+        Cancel 
+      </vaadin-button>
+      <vaadin-button style-name="small danger" plain-text _id="delete" :middle :right :expand>
+        Delete 
+      </vaadin-button>
+     </vaadin-horizontal-layout>
+    </vaadin-vertical-layout>
+   </vaadin-css-layout>
+  </vaadin-vertical-layout>
+ </body>
+</html>

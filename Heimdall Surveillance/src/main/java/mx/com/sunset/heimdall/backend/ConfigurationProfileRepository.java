@@ -12,5 +12,6 @@ public interface ConfigurationProfileRepository extends JpaRepository<Configurat
 	Page<ConfigurationProfile> findByNameLikeIgnoreCase(String name,Pageable page);
 	int countByNameLikeIgnoreCase(String name);
 	
+	
 
 }
