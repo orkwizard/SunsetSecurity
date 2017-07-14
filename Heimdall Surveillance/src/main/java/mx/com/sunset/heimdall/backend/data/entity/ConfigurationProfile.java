@@ -1,36 +1,50 @@
 package mx.com.sunset.heimdall.backend.data.entity;
 
+import java.util.Objects;
+
 import javax.persistence.Entity;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+
 
 @Entity
 public class ConfigurationProfile extends AbstractEntity {
 
+	@NotNull
 	@Size(max = 45)
 	private String name;
 	
+	@NotNull
 	@Size(max = 45)
 	private String database_server;
 	
+	@NotNull
 	@Min(0)
 	private int port;
 	
+	@NotNull
 	@Size(max = 45)
 	private String scheme;
 	
+	@NotNull
 	@Size(max = 45)
 	private String driver_class;
 	
+	@NotNull
 	@Size(max = 200)
 	private String email_server;
 	
+	@NotNull
 	@Size(max = 45)
 	private String email_user;
 	
+	@NotNull
 	@Size(max = 45)
 	private String email_password;
 	
+	@NotNull
 	@Min(0)
 	private int email_port;
 	
@@ -42,6 +56,29 @@ public class ConfigurationProfile extends AbstractEntity {
 	
 	@Size(max = 255)
 	private String url;
+	
+	public ConfigurationProfile(){
+		// An empty constructor is needed for all beans
+	}
+	
+	public ConfigurationProfile(String n,String dbs,int p, String scheme,String dc,String es,String ep,int eport,String dbu,String dbp,String url){
+		Objects.requireNonNull(n);
+		Objects.requireNonNull(dbs);
+		
+		this.name=n;
+		this.database_server=dbs;
+		this.port = p;
+		this.scheme=scheme;
+		this.driver_class=dc;
+		this.email_server=es;
+		this.email_password=ep;
+		this.email_port=eport;
+		this.db_user=dbu;
+		this.db_password=dbp;
+		this.url=url;
+		
+	}
+	
 
 	public String getName() {
 		return name;

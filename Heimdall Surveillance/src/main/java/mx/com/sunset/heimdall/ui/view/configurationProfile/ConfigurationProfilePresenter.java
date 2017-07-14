@@ -15,13 +15,21 @@ import mx.com.sunset.heimdall.ui.view.admin.AbstractCrudPresenter;
 @ViewScope
 public class ConfigurationProfilePresenter extends AbstractCrudPresenter<ConfigurationProfile,ConfigurationProfileService, ConfigurationProfileView> {
 	
+	
+
 	@Autowired
+	public ConfigurationProfilePresenter(ConfigurationProfileDataProvider dataProvider, NavigationManager nav, ConfigurationProfileService service) {
+		// TODO Auto-generated constructor stub
+		super(nav,service,dataProvider);
+	}
+	
+/*	@Autowired
 	public ConfigurationProfilePresenter(ConfigurationProfileDataProvider dataProvider,NavigationManager nav,ConfigurationProfileService service) {
 		super(nav,service,dataProvider);
 		// TODO Auto-generated constructor stub
 	}
 	
-	
+	*/
 	
 
 }

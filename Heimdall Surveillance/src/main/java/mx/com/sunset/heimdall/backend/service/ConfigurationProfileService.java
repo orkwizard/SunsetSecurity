@@ -2,17 +2,18 @@ package mx.com.sunset.heimdall.backend.service;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.CrudRepository;
-
-import com.google.gwt.logging.client.DefaultLevel.Config;
+import org.springframework.stereotype.Service;
 
 import mx.com.sunset.heimdall.app.BeanLocator;
 import mx.com.sunset.heimdall.backend.ConfigurationProfileRepository;
 import mx.com.sunset.heimdall.backend.data.entity.ConfigurationProfile;
 
+@Service
 public class ConfigurationProfileService implements CrudService<ConfigurationProfile> {
+	
 
 	@Override
 	public ConfigurationProfileRepository getRepository() {

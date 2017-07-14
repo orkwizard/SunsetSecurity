@@ -22,16 +22,12 @@ import mx.com.sunset.heimdall.backend.service.CrudService;
 @PrototypeScope
 public class ConfigurationProfileDataProvider extends FilterablePageableDataProvider<ConfigurationProfile, Object> {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private transient CrudService<ConfigurationProfile> configurationProfileService;
 	
 	
 
 	@Override
-	protected Page<ConfigurationProfile> fetchFromBackEnd(Query<ConfigurationProfile, Object> arg0, Pageable pageable) {
+	protected Page<ConfigurationProfile> fetchFromBackEnd(Query<ConfigurationProfile, Object> query, Pageable pageable) {
 		// TODO Auto-generated method stub
 		return getConfigurationProfileService().findAnyMatching(getOptionalFilter(),pageable);
 	}

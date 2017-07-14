@@ -8,6 +8,7 @@ import mx.com.sunset.heimdall.backend.data.entity.ConfigurationProfile;
 
 public interface ConfigurationProfileRepository extends JpaRepository<ConfigurationProfile, Long> {
 	
+	ConfigurationProfile findByName(String name);
 	Page<ConfigurationProfile> findBy(Pageable page);
 	Page<ConfigurationProfile> findByNameLikeIgnoreCase(String name,Pageable page);
 	int countByNameLikeIgnoreCase(String name);
